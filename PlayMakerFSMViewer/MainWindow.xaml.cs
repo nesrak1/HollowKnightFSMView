@@ -443,13 +443,13 @@ namespace PlayMakerFSMViewer
                 {
                     string name = colorVariables.Get((uint)i).Get("name").GetValue().AsString();
                     AssetTypeValueField color = colorVariables.Get((uint)i).Get("value");
-                    string value =  color.Get("r").GetValue().AsFloat().ToString("X2");
-                           value += color.Get("g").GetValue().AsFloat().ToString("X2");
-                           value += color.Get("b").GetValue().AsFloat().ToString("X2");
-                           value += color.Get("a").GetValue().AsFloat().ToString("X2");
+                    string value =  ((int)(color.Get("r").GetValue().AsFloat()) * 255).ToString("X2");
+                           value += ((int)(color.Get("g").GetValue().AsFloat()) * 255).ToString("X2");
+                           value += ((int)(color.Get("b").GetValue().AsFloat()) * 255).ToString("X2");
+                           value += ((int)(color.Get("a").GetValue().AsFloat()) * 255).ToString("X2");
                     Grid sidebarRow = CreateSidebarRow(name, value);
-                    TextBox textBox = (TextBox)sidebarRow.Children[1];
-                    textBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom(value));
+                    TextBox textBox = sidebarRow.Children.OfType<TextBox>().FirstOrDefault();
+                    textBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#" + value));
                     variableList.Children.Add(sidebarRow);
                 }
                 variableList.Children.Add(CreateSidebarHeader("Rects"));
