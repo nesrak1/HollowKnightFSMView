@@ -57,8 +57,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AssetsTools.NET">
-      <HintPath>D:\Visual Studio 2015\Projects\AssetTools.NET\AssetTools.NET\bin\x64\Debug\AssetsTools.NET.dll</HintPath>
+    <Reference Include="AssetsTools.NET, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>AssetTools.NET\AssetsTools.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -141,4 +141,10 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+      copy /Y "$(ProjectDir)cldb.dat" "$(ProjectDir)$(OutputPath)\"
+      copy /Y "$(ProjectDir)Cecil\Mono.Cecil.dll" "$(ProjectDir)$(OutputPath)\"
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>
