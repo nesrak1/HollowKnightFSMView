@@ -1,0 +1,1 @@
+Just open a level file or resources.assets and choose an item from the list. Use open last to pick another item from the same file.
