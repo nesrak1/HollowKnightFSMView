@@ -93,6 +93,7 @@ namespace PlayMakerFSMViewer
 
         #region Arrows
         private List<Node> nodes = new List<Node>();
+        private int dataVersion = -1;
         //from CircularDependencyTool
         private Point ComputeLocation(Node node1, Node node2)
         {
@@ -255,6 +256,7 @@ namespace PlayMakerFSMViewer
                 
                 AssetTypeValueField fsm = baseField.Get("fsm");
                 AssetTypeValueField states = fsm.Get("states");
+                dataVersion = fsm.Get("dataVersion").GetValue().AsInt();
                 for (int i = 0; i < states.GetValue().AsArray().size; i++)
                 {
                     AssetTypeValueField state = states.Get((uint)i);
@@ -499,7 +501,7 @@ namespace PlayMakerFSMViewer
 
             AssetTypeValueField actionData = node.state.Get("actionData");
             uint actionCount = actionData.Get("actionNames").GetValue().AsArray().size;
-            string[] actionValues = ActionReader.ActionValues(actionData);
+            string[] actionValues = ActionReader.ActionValues(actionData, dataVersion);
             for (int i = 0; i < actionCount; i++)
             {
                 string actionName = actionData.Get("actionNames").Get((uint)i).GetValue().AsString();

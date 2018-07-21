@@ -20,6 +20,7 @@ namespace PlayMakerFSMViewer
     public partial class FSMSelector : Window
     {
         private List<AssetInfo> validAssets;
+        private bool dontAllowSelect = false;
         public long selectedID;
         public FSMSelector(List<AssetInfo> validAssets)
         {
@@ -39,6 +40,9 @@ namespace PlayMakerFSMViewer
 
         private void selectButton_Click(object sender, RoutedEventArgs e)
         {
+            if (dontAllowSelect)
+                return;
+            dontAllowSelect = true;
             selectedID = (long)validAssets[listBox.SelectedIndex].id;
             Close();
         }
