@@ -32,7 +32,7 @@ namespace UABE.NET.Assets
             {
                 Dependency assetDependency;
                 string depName = initialFile.dependencies.pDependencies[i].assetPath;
-                string path = directory + "\\" + depName.Replace("library/", "Resources\\");
+                string path = Path.Combine(directory, depName.Replace("library/", "Resources/"));
                 if (File.Exists(path))
                 {
                     FileStream depFile = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
