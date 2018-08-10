@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PlayMakerFSMViewer"
         mc:Ignorable="d"
         Title="FSM Viewer" Height="450" Width="887" Icon="icon.ico">
-    <Grid Loaded="Grid_Loaded">
+    <Grid Background="#3f3f3f" Loaded="Grid_Loaded">
         <Menu Height="21" VerticalAlignment="Top" Panel.ZIndex="1">
             <MenuItem Header="File">
                 <MenuItem Header="Open" Click="Open_Click" />
