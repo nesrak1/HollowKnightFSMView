@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="FSMSelector" Height="600" Width="350" WindowStartupLocation="CenterScreen">
     <Grid>
-        <ListBox x:Name="listBox" Margin="0,0,0,20"/>
+        <TextBox x:Name="searchBox" Height="20" TextWrapping="Wrap" VerticalAlignment="Top" TextChanged="searchBox_TextChanged" />
+        <ListBox x:Name="listBox" Margin="0,20" />
         <Button x:Name="selectButton" Content="Select" VerticalAlignment="Bottom" Click="selectButton_Click"/>
     </Grid>
 </Window>

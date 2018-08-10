@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace PlayMakerFSMViewer
     {
         private List<AssetInfo> validAssets;
         private bool dontAllowSelect = false;
+        private ICollectionView view;
         public long selectedID;
         public FSMSelector(List<AssetInfo> validAssets)
         {
@@ -31,11 +33,17 @@ namespace PlayMakerFSMViewer
             {
                 this.HideMinimizeAndMaximizeButtons();
             };
+            List<FSMListItem> fsms = new List<FSMListItem>();
+            int index = 0;
             foreach (AssetInfo info in this.validAssets)
             {
                 string name = $"{info.name} [{info.size}b]";
-                listBox.Items.Add(name);
+                fsms.Add(new FSMListItem(name, index));
+                index++;
             }
+            listBox.ItemsSource = fsms;
+            view = CollectionViewSource.GetDefaultView(listBox.ItemsSource);
+            view.Filter = Filter;
         }
 
         private void selectButton_Click(object sender, RoutedEventArgs e)
@@ -43,8 +51,35 @@ namespace PlayMakerFSMViewer
             if (dontAllowSelect)
                 return;
             dontAllowSelect = true;
-            selectedID = (long)validAssets[listBox.SelectedIndex].id;
+            selectedID = (long)validAssets[((FSMListItem)listBox.SelectedItem).index].id;
             Close();
+        }
+
+        private void searchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            view.Refresh();
+        }
+
+        private bool Filter(object obj)
+        {
+            if (searchBox.Text == "")
+                return true;
+            return obj.ToString().ToUpper().Contains(searchBox.Text.ToUpper());
+        }
+
+        public struct FSMListItem
+        {
+            public string name;
+            public int index;
+            public FSMListItem(string name, int index)
+            {
+                this.name = name;
+                this.index = index;
+            }
+            public override string ToString()
+            {
+                return name;
+            }
         }
     }
 }
