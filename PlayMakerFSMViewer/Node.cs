@@ -27,34 +27,26 @@ namespace PlayMakerFSMViewer
         
         private readonly Color[] _stateColors = 
         {
-            // Color.FromScRgb(1, 0.5f, 0.5f, 0.5f), 
-            // Color.FromScRgb(1, 0.545098066f, 0.670588255f, 0.9411765f),
-            // Color.FromScRgb(1, 0.243137255f, 0.7607843f, 0.6901961f),
-            // Color.FromScRgb(1, 0.431372553f, 0.7607843f, 0.243137255f),
-            // Color.FromScRgb(1, 1f, 0.8745098f, 0.1882353f),
-            // Color.FromScRgb(1, 1f, 0.5529412f, 0.1882353f),
-            // Color.FromScRgb(1, 0.7607843f, 0.243137255f, 0.2509804f),
-            // Color.FromScRgb(1, 0.545098066f, 0.243137255f, 0.7607843f)
-            Color.FromRgb(128, 128, 128), // grey
-            Color.FromRgb(116, 143, 201), // blue
-            Color.FromRgb(58, 182, 166), // cyan
-            Color.FromRgb(93, 164, 53), // green
-            Color.FromRgb(225, 254, 50), // yellow
-            Color.FromRgb(235, 131, 46), // orange
-            Color.FromRgb(187, 75, 75), // red
-            Color.FromRgb(117, 53, 164) // purple
+            Color.FromRgb(128, 128, 128), 
+            Color.FromRgb(116, 143, 201),
+            Color.FromRgb(58, 182, 166),
+            Color.FromRgb(93, 164, 53),
+            Color.FromRgb(225, 254, 50),
+            Color.FromRgb(235, 131, 46),
+            Color.FromRgb(187, 75, 75),
+            Color.FromRgb(117, 53, 164) 
         };
         
         private readonly Color[] _transitionColors = 
         {
-            Color.FromRgb(222, 222, 222), // grey
-            Color.FromRgb(197, 213, 248), // blue
-            Color.FromRgb(159, 225, 216), // cyan
-            Color.FromRgb(183, 225, 159), // green
-            Color.FromRgb(225, 254, 102), // yellow
-            Color.FromRgb(255, 198, 152), // orange
-            Color.FromRgb(225, 159, 160), // red
-            Color.FromRgb(197, 159, 225) // purple
+            Color.FromRgb(222, 222, 222),
+            Color.FromRgb(197, 213, 248),
+            Color.FromRgb(159, 225, 216),
+            Color.FromRgb(183, 225, 159),
+            Color.FromRgb(225, 254, 102),
+            Color.FromRgb(255, 198, 152),
+            Color.FromRgb(225, 159, 160),
+            Color.FromRgb(197, 159, 225) 
         };
 
         public bool Selected
@@ -166,7 +158,12 @@ namespace PlayMakerFSMViewer
             {
                 Label i = list[index];
                 Grid.SetRow(i, index);
-                i.MaxHeight = i.MinHeight = transform.Height / list.Count;
+
+                // stops lowercase descenders in the state titles
+                // from getting cut-off
+                i.MaxHeight = index == 0
+                    ? (i.MinHeight = transform.Height / list.Count + 1.4)
+                    : (i.MinHeight = (transform.Height - 1.4) / list.Count);
             }
 
             grid.Children.Add(rectPath);
