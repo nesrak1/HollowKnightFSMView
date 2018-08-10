@@ -291,78 +291,77 @@ namespace PlayMakerFSMViewer
                 }
                 foreach (Node node in nodes)
                 {
-                    if (node.transitions.Length > 0)
+                    if (node.transitions.Length <= 0) continue;
+                    
+                    float yPos = 24;
+                    foreach (FsmTransition trans in node.transitions)
                     {
-                        float yPos = 24;
-                        foreach (FsmTransition trans in node.transitions)
+                        Node endNode = nodes.FirstOrDefault(n => n.name == trans.toState);
+                        if (endNode != null)
                         {
-                            Node endNode = nodes.Where(n => n.name == trans.toState).FirstOrDefault();
-                            if (endNode != null)
+                            Point start = ComputeLocation(node, endNode, yPos, out bool isLeft);
+                            Point end = ComputeLocation(endNode, node, 10, out bool dummy);
+
+                            Point startMiddle, endMiddle;
+                            const double dist = 70;
+                            if (!isLeft)
                             {
-                                Point start = ComputeLocation(node, endNode, yPos, out bool isLeft);
-                                Point end = ComputeLocation(endNode, node, 10, out bool dummy);
-
-                                Point startMiddle, endMiddle;
-                                double dist = 70;
-                                if (!isLeft)
-                                {
-                                    startMiddle = new Point(start.X - dist, start.Y);
-                                    endMiddle = new Point(end.X + dist, end.Y);
-                                }
-                                else
-                                {
-                                    startMiddle = new Point(start.X + dist, start.Y);
-                                    endMiddle = new Point(end.X - dist, end.Y);
-                                }
-
-                                CurvedArrow arrow = new CurvedArrow()
-                                {
-                                    Points = new PointCollection(new List<Point>()
-                                    {
-                                        start,
-                                        startMiddle,
-                                        endMiddle,
-                                        end
-                                    }),
-                                    StrokeThickness = 2,
-                                    Stroke = Brushes.Black,
-                                    Fill = Brushes.Black,
-                                    IsHitTestVisible = true
-                                };
-
-                                arrow.MouseEnter += (object sender, MouseEventArgs e) =>
-                                {
-                                    arrow.Stroke = Brushes.LightGray;
-                                    arrow.Fill = Brushes.LightGray;
-                                };
-
-                                arrow.MouseLeave += (object sender, MouseEventArgs e) =>
-                                {
-                                    arrow.Stroke = Brushes.Black;
-                                    arrow.Fill = Brushes.Black;
-                                };
-
-                                Panel.SetZIndex(arrow, -1);
-
-                                //ArrowLine arrowLine = new ArrowLine()
-                                //{
-                                //    IsArrowClosed = true,
-                                //    Stroke = Brushes.Black,
-                                //    StrokeThickness = 2,
-                                //    ArrowLength = 8,
-                                //    X1 = start.X,
-                                //    Y1 = start.Y,
-                                //    X2 = end.X,
-                                //    Y2 = end.Y
-                                //};
-
-                                graphCanvas.Children.Add(arrow);
-                            } else
-                            {
-                                System.Diagnostics.Debug.WriteLine(node.name + " failed to connect to " + trans.toState);
+                                startMiddle = new Point(start.X - dist, start.Y);
+                                endMiddle = new Point(end.X + dist, end.Y);
                             }
-                            yPos += 16;
+                            else
+                            {
+                                startMiddle = new Point(start.X + dist, start.Y);
+                                endMiddle = new Point(end.X - dist, end.Y);
+                            }
+
+                            CurvedArrow arrow = new CurvedArrow()
+                            {
+                                Points = new PointCollection(new List<Point>()
+                                {
+                                    start,
+                                    startMiddle,
+                                    endMiddle,
+                                    end
+                                }),
+                                StrokeThickness = 2,
+                                Stroke = Brushes.Black,
+                                Fill = Brushes.Black,
+                                IsHitTestVisible = true
+                            };
+
+                            arrow.MouseEnter += (object sender, MouseEventArgs e) =>
+                            {
+                                arrow.Stroke = Brushes.LightGray;
+                                arrow.Fill = Brushes.LightGray;
+                            };
+
+                            arrow.MouseLeave += (object sender, MouseEventArgs e) =>
+                            {
+                                arrow.Stroke = Brushes.Black;
+                                arrow.Fill = Brushes.Black;
+                            };
+
+                            Panel.SetZIndex(arrow, -1);
+
+                            //ArrowLine arrowLine = new ArrowLine()
+                            //{
+                            //    IsArrowClosed = true,
+                            //    Stroke = Brushes.Black,
+                            //    StrokeThickness = 2,
+                            //    ArrowLength = 8,
+                            //    X1 = start.X,
+                            //    Y1 = start.Y,
+                            //    X2 = end.X,
+                            //    Y2 = end.Y
+                            //};
+
+                            graphCanvas.Children.Add(arrow);
+                        } else
+                        {
+                            System.Diagnostics.Debug.WriteLine(node.name + " failed to connect to " + trans.toState);
                         }
+                        yPos += 16;
                     }
                 }
                 AssetTypeValueField events = fsm.Get("events");

@@ -62,9 +62,7 @@ namespace PlayMakerFSMViewer
 
         private bool Filter(object obj)
         {
-            if (searchBox.Text == "")
-                return true;
-            return obj.ToString().ToUpper().Contains(searchBox.Text.ToUpper());
+            return searchBox.Text == "" || searchBox.Text.ToUpper().All(x => obj.ToString().ToUpper().Contains(x));
         }
 
         public struct FSMListItem

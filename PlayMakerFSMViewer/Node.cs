@@ -3,10 +3,12 @@ using PlayMakerFSMViewer.FieldClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -22,23 +24,40 @@ namespace PlayMakerFSMViewer
         public FsmTransition[] transitions;
         public string name;
         private bool selected;
+        
+        private readonly Color[] _stateColors = 
+        {
+            Color.FromRgb(128, 128, 128), 
+            Color.FromRgb(116, 143, 201),
+            Color.FromRgb(58, 182, 166),
+            Color.FromRgb(93, 164, 53),
+            Color.FromRgb(225, 254, 50),
+            Color.FromRgb(235, 131, 46),
+            Color.FromRgb(187, 75, 75),
+            Color.FromRgb(117, 53, 164) 
+        };
+        
+        private readonly Color[] _transitionColors = 
+        {
+            Color.FromRgb(222, 222, 222),
+            Color.FromRgb(197, 213, 248),
+            Color.FromRgb(159, 225, 216),
+            Color.FromRgb(183, 225, 159),
+            Color.FromRgb(225, 254, 102),
+            Color.FromRgb(255, 198, 152),
+            Color.FromRgb(225, 159, 160),
+            Color.FromRgb(197, 159, 225) 
+        };
+
         public bool Selected
         {
-            get
-            {
-                return selected;
-            }
+            get => selected;
             set
             {
                 selected = value;
-                if (selected)
-                {
-                    rectPath.StrokeThickness = 2;
-                }
-                else
-                {
-                    rectPath.StrokeThickness = 1;
-                }
+                rectPath.StrokeThickness = selected 
+                    ? 2 
+                    : 1;
             }
         }
 
@@ -70,11 +89,7 @@ namespace PlayMakerFSMViewer
             this.transitions = transitions;
 
             this.name = name;
-            foreach (FsmTransition transition in transitions)
-            {
-                name += "\n" + transition.fsmEvent.name;
-            }
-
+            
             grid = new Grid();
             grid.SetValue(Canvas.LeftProperty, transform.X);
             grid.SetValue(Canvas.TopProperty, transform.Y);
@@ -86,7 +101,7 @@ namespace PlayMakerFSMViewer
                 RadiusY = 1
             };
 
-            rectPath = new Path()
+            rectPath = new Path
             {
                 Fill = fill,
                 Stroke = stroke,
@@ -95,18 +110,64 @@ namespace PlayMakerFSMViewer
                 Data = rectGeom
             };
 
-            label = new Label()
+            FontFamily font = new FontFamily("Segoe UI Bold");
+
+            StackPanel stack = new StackPanel();
+
+            byte cIndex = (byte) state.Get("colorIndex").GetValue().AsUInt();
+
+            label = new Label
             {
-                Foreground = Brushes.Gray,
+                Foreground = Brushes.White,
                 Content = name,
                 Padding = new Thickness(1),
-                FontFamily = new FontFamily("Segoe UI Bold"),
+                FontFamily = font,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1, 1, 1, 0),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Center
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+                Background = new SolidColorBrush(_stateColors[cIndex]),
+                MaxWidth = transform.Width,
+                MinWidth = transform.Width
             };
 
+            stack.Children.Add(label);
+            
+            foreach (FsmTransition transition in transitions)
+            {
+                stack.Children.Add(new Label
+                {
+                    Background = new SolidColorBrush(_transitionColors[cIndex]),
+                    Foreground = Brushes.DimGray,
+                    Content = transition.fsmEvent.name,
+                    Padding = new Thickness(1),
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1, .5, 1, .25),
+                    FontFamily = font,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Stretch,
+                    MaxWidth = transform.Width,
+                    MinWidth = transform.Width
+                });
+            }
+
+            List<Label> list = stack.Children.OfType<Label>().ToList();
+            for (int index = 0; index < list.Count; index++)
+            {
+                Label i = list[index];
+                Grid.SetRow(i, index);
+
+                // stops lowercase descenders in the state titles
+                // from getting cut-off
+                i.MaxHeight = index == 0
+                    ? (i.MinHeight = transform.Height / list.Count + 1.4)
+                    : (i.MinHeight = (transform.Height - 1.4) / list.Count);
+            }
+
             grid.Children.Add(rectPath);
-            grid.Children.Add(label);
+            grid.Children.Add(stack);
             //graphCanvas.Children.Add(grid);
         }
     }

@@ -25,7 +25,7 @@ namespace PlayMakerFSMViewer
                 int paramDataPos = actionData.Get("paramDataPos").Get((uint)i).GetValue().AsInt();
                 int paramByteDataSize = actionData.Get("paramByteDataSize").Get((uint)i).GetValue().AsInt();
                 reader.BaseStream.Position = paramDataPos;
-                string displayValue = "? " + type.ToString();
+                string displayValue = "? " + type;
                 displayValue = GetDisplayValue(actionData, version, type, paramDataPos, paramByteDataSize, reader);
                 actionValues[i] = displayValue;
             }
@@ -37,7 +37,7 @@ namespace PlayMakerFSMViewer
         public static string GetDisplayValue(AssetTypeValueField actionData, int version,
             ParamDataType type, int paramDataPos, int paramByteDataSize, BinaryReader reader)
         {
-            string displayValue = "? " + type.ToString();
+            string displayValue = "? " + type;
             if (version == 1) //read binary as normal
             {
                 switch (type)
@@ -407,12 +407,10 @@ namespace PlayMakerFSMViewer
                         NonPPtr:
                         {
                             string name = "";
-                            if (field != null)
-                                field.Get("name").GetValue().AsString();
-                            if (name != "")
-                                displayValue = $"{functionName}({name}: {displayValue})";
-                            else
-                                displayValue = $"{functionName}({displayValue})";
+                            field?.Get("name").GetValue().AsString();
+                            displayValue = name != ""
+                                ? $"{functionName}({name}: {displayValue})"
+                                : $"{functionName}({displayValue})";
                             break;
                         }
                     }
