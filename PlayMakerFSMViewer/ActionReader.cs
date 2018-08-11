@@ -38,7 +38,7 @@ namespace PlayMakerFSMViewer
             ParamDataType type, int paramDataPos, int paramByteDataSize, BinaryReader reader)
         {
             string displayValue = "? " + type;
-            if (version == 1) //read binary as normal
+            if (version == 1 && !(type == ParamDataType.FsmString && paramByteDataSize == 0)) //read binary as normal
             {
                 switch (type)
                 {
