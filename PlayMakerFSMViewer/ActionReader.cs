@@ -223,9 +223,9 @@ namespace PlayMakerFSMViewer
                     {
                         AssetTypeValueField fsmOwnerDefaultParam = actionData.Get("fsmOwnerDefaultParams").Get((uint)paramDataPos);
 
-                        if (fsmOwnerDefaultParam["ownerOption"].GetValue().AsUInt() == 0)
+                        if (fsmOwnerDefaultParam["ownerOption"].GetValue().AsInt() == 0)
                         {
-                            displayValue = "Self";
+                            displayValue = "FSM Owner";
                             break;
                         }
                         
