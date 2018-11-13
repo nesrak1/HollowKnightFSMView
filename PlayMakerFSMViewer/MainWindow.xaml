@@ -11,7 +11,7 @@
             <MenuItem Header="File">
                 <MenuItem Header="Open File" Click="Open_Click" />
                 <MenuItem Header="Open Scene List" Click="OpenScene_Click" />
-                <MenuItem Header="Open resources.asseets" Click="OpenResources_Click" />
+                <MenuItem Header="Open resources.assets" Click="OpenResources_Click" />
             </MenuItem>
             <MenuItem x:Name="openLast" Header="Open Last" Click="OpenLast_Click" IsEnabled="False" />
         </Menu>
