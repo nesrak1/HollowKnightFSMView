@@ -202,6 +202,11 @@ namespace PlayMakerFSMViewer
                         displayValue = x + ", " + y + ", " + z;
                         break;
                     }
+                    default:
+                    {
+                        displayValue = "unknown type " + type.ToString();
+                        break;
+                    }
                 }
                 if (PossiblyHasName(type) && UseVariable(field))
                 {
@@ -432,6 +437,8 @@ namespace PlayMakerFSMViewer
 
         private static bool UseVariable(AssetTypeValueField field)
         {
+            if (field == null)
+                return false;
             return field.Get("useVariable").GetValue().AsBool();
         }
 

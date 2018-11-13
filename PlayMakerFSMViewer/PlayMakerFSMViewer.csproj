@@ -57,7 +57,7 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AssetsTools.NET, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="AssetsTools.NET">
       <HintPath>AssetTools.NET\AssetsTools.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -81,6 +81,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Arrows\CurvedArrow.cs" />
+    <Compile Include="FSMInstance.cs" />
+    <Compile Include="SceneSelector.xaml.cs">
+      <DependentUpon>SceneSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SteamHelper.cs" />
     <Compile Include="WindowExtensions.cs" />
     <Page Include="FSMSelector.xaml">
       <SubType>Designer</SubType>
@@ -105,11 +110,14 @@
       <DependentUpon>FSMSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Node.cs" />
-    <Compile Include="UABE\AssetsManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SceneSelector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
