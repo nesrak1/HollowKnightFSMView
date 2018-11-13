@@ -18,26 +18,29 @@ namespace PlayMakerFSMViewer
     {
         public Grid grid;
         public RectangleGeometry rectGeom;
+        public Rectangle rect;
         public Path rectPath;
+        public Rect initialTransform;
         public Label label;
+        public Brush stroke;
         public AssetTypeValueField state;
         public FsmTransition[] transitions;
         public string name;
         private bool selected;
-        
-        private readonly Color[] _stateColors = 
+
+        private readonly Color[] _stateColors =
         {
-            Color.FromRgb(128, 128, 128), 
+            Color.FromRgb(128, 128, 128),
             Color.FromRgb(116, 143, 201),
             Color.FromRgb(58, 182, 166),
             Color.FromRgb(93, 164, 53),
             Color.FromRgb(225, 254, 50),
             Color.FromRgb(235, 131, 46),
             Color.FromRgb(187, 75, 75),
-            Color.FromRgb(117, 53, 164) 
+            Color.FromRgb(117, 53, 164)
         };
-        
-        private readonly Color[] _transitionColors = 
+
+        private readonly Color[] _transitionColors =
         {
             Color.FromRgb(222, 222, 222),
             Color.FromRgb(197, 213, 248),
@@ -46,7 +49,7 @@ namespace PlayMakerFSMViewer
             Color.FromRgb(225, 254, 102),
             Color.FromRgb(255, 198, 152),
             Color.FromRgb(225, 159, 160),
-            Color.FromRgb(197, 159, 225) 
+            Color.FromRgb(197, 159, 225)
         };
 
         public bool Selected
@@ -55,9 +58,26 @@ namespace PlayMakerFSMViewer
             set
             {
                 selected = value;
-                rectPath.StrokeThickness = selected 
-                    ? 2 
-                    : 1;
+
+                rect.Stroke = selected
+                    ? Brushes.LightBlue
+                    : stroke;
+
+                rect.StrokeThickness = selected
+                    ? 8
+                    : 2;
+
+                //add border and fix offset
+                if (selected)
+                {
+                    rect.Margin = new Thickness(0, -2, 0, 0);
+                    Transform = new Rect(initialTransform.X - 1, initialTransform.Y, initialTransform.Width + 4, initialTransform.Height + 5);
+                }
+                else
+                {
+                    rect.Margin = new Thickness(0, -1, 0, 0);
+                    Transform = new Rect(initialTransform.X, initialTransform.Y, initialTransform.Width + 2, initialTransform.Height + 3);
+                }
             }
         }
 
@@ -74,22 +94,30 @@ namespace PlayMakerFSMViewer
             {
                 grid.SetValue(Canvas.LeftProperty, value.X);
                 grid.SetValue(Canvas.TopProperty, value.Y);
-                rectGeom.Rect = new Rect(0, 0, value.Width, value.Height);
+                rect.Width = value.Width;
+                rect.Height = value.Height;
             }
         }
 
         public Node(AssetTypeValueField state, string name, int x, int y, int width, int height, FsmTransition[] transitions) :
-                    this(state, name, new Rect(x, y, width, height), Brushes.LightGray, Brushes.Black, transitions) {}
+                    this(state, name, new Rect(x, y, width, height), Brushes.LightGray, Brushes.Black, transitions)
+        { }
         public Node(AssetTypeValueField state, string name, Rect transform, FsmTransition[] transitions) :
-                    this(state, name, transform, Brushes.LightGray, Brushes.Black, transitions) {}
+                    this(state, name, transform, Brushes.LightGray, Brushes.Black, transitions)
+        { }
 
         public Node(AssetTypeValueField state, string name, Rect transform, Brush fill, Brush stroke, FsmTransition[] transitions)
         {
             this.state = state;
             this.transitions = transitions;
-
             this.name = name;
-            
+
+            this.stroke = stroke;
+
+            bool isGlobal = state == null;
+
+            initialTransform = transform;
+
             grid = new Grid();
             grid.SetValue(Canvas.LeftProperty, transform.X);
             grid.SetValue(Canvas.TopProperty, transform.Y);
@@ -99,6 +127,19 @@ namespace PlayMakerFSMViewer
                 Rect = new Rect(0, 0, transform.Width, transform.Height),
                 RadiusX = 1,
                 RadiusY = 1
+            };
+
+            rect = new Rectangle()
+            {
+                Fill = fill,
+                Stroke = stroke,
+                StrokeThickness = 2,
+                Opacity = 0.75,
+                Width = transform.Width + 2,
+                Height = transform.Height + 3,
+                RadiusX = 1,
+                RadiusY = 1,
+                Margin = new Thickness(0, -1, 0, 0)
             };
 
             rectPath = new Path
@@ -114,7 +155,11 @@ namespace PlayMakerFSMViewer
 
             StackPanel stack = new StackPanel();
 
-            byte cIndex = (byte) state.Get("colorIndex").GetValue().AsUInt();
+            byte cIndex;
+            if (state != null && !state.Get("colorIndex").IsDummy())
+                cIndex = (byte)state.Get("colorIndex").GetValue().AsUInt();
+            else
+                cIndex = 0;
 
             label = new Label
             {
@@ -132,41 +177,47 @@ namespace PlayMakerFSMViewer
                 MinWidth = transform.Width
             };
 
+            if (isGlobal)
+                label.Background = new SolidColorBrush(Color.FromRgb(0x20, 0x20, 0x20));
+
             stack.Children.Add(label);
-            
-            foreach (FsmTransition transition in transitions)
+
+            if (!isGlobal)
             {
-                stack.Children.Add(new Label
+                foreach (FsmTransition transition in transitions)
                 {
-                    Background = new SolidColorBrush(_transitionColors[cIndex]),
-                    Foreground = Brushes.DimGray,
-                    Content = transition.fsmEvent.name,
-                    Padding = new Thickness(1),
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(1, .5, 1, .25),
-                    FontFamily = font,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    HorizontalContentAlignment = HorizontalAlignment.Center,
-                    VerticalContentAlignment = VerticalAlignment.Stretch,
-                    MaxWidth = transform.Width,
-                    MinWidth = transform.Width
-                });
+                    stack.Children.Add(new Label
+                    {
+                        Background = new SolidColorBrush(_transitionColors[cIndex]),
+                        Foreground = Brushes.DimGray,
+                        Content = transition.fsmEvent.name,
+                        Padding = new Thickness(1),
+                        BorderBrush = Brushes.Black,
+                        BorderThickness = new Thickness(1, .5, 1, .25),
+                        FontFamily = font,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Stretch,
+                        MaxWidth = transform.Width,
+                        MinWidth = transform.Width
+                    });
+                }
+
+                List<Label> list = stack.Children.OfType<Label>().ToList();
+                for (int index = 0; index < list.Count; index++)
+                {
+                    Label i = list[index];
+                    Grid.SetRow(i, index);
+
+                    // stops lowercase descenders in the state titles
+                    // from getting cut-off
+                    i.MaxHeight = index == 0
+                        ? (i.MinHeight = transform.Height / list.Count + 1.4)
+                        : (i.MinHeight = (transform.Height - 1.4) / list.Count);
+                }
             }
 
-            List<Label> list = stack.Children.OfType<Label>().ToList();
-            for (int index = 0; index < list.Count; index++)
-            {
-                Label i = list[index];
-                Grid.SetRow(i, index);
-
-                // stops lowercase descenders in the state titles
-                // from getting cut-off
-                i.MaxHeight = index == 0
-                    ? (i.MinHeight = transform.Height / list.Count + 1.4)
-                    : (i.MinHeight = (transform.Height - 1.4) / list.Count);
-            }
-
-            grid.Children.Add(rectPath);
+            grid.Children.Add(rect);
             grid.Children.Add(stack);
             //graphCanvas.Children.Add(grid);
         }

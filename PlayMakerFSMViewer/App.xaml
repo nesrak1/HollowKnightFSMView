@@ -4,6 +4,34 @@
              xmlns:local="clr-namespace:PlayMakerFSMViewer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="StandaloneTabs" TargetType="{x:Type TabControl}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel 
+                                Name="HeaderPanel"
+                                Grid.Row="0"
+                                Panel.ZIndex="1" 
+                                Margin="0,0,4,-1" 
+                                IsItemsHost="True"
+                                KeyboardNavigation.TabIndex="1"
+                                Background="Transparent" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

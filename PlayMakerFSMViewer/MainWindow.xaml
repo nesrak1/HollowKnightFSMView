@@ -6,18 +6,32 @@
         xmlns:local="clr-namespace:PlayMakerFSMViewer"
         mc:Ignorable="d"
         Title="FSM Viewer" Height="450" Width="887" Icon="icon.ico">
-    <Grid Background="#3f3f3f" Loaded="Grid_Loaded">
+    <Grid Background="#3f3f3f">
         <Menu Height="21" VerticalAlignment="Top" Panel.ZIndex="1">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Click="Open_Click" />
+                <MenuItem Header="Open File" Click="Open_Click" />
+                <MenuItem Header="Open Scene List" Click="OpenScene_Click" />
             </MenuItem>
             <MenuItem x:Name="openLast" Header="Open Last" Click="OpenLast_Click" IsEnabled="False" />
         </Menu>
-        <Canvas x:Name="graphCanvas" HorizontalAlignment="Left" Height="383" Margin="10,26,0,0" VerticalAlignment="Top" Width="859">
+        <Canvas x:Name="graphCanvas" Height="383" Margin="10,26,10,0" VerticalAlignment="Top">
             <Canvas.RenderTransform>
                 <MatrixTransform x:Name="mt"/>
             </Canvas.RenderTransform>
         </Canvas>
+        <TabControl x:Name="fsmTabControl" BorderBrush="#00000000" Margin="10,26,10,0" Height="383" VerticalAlignment="Top" Style="{StaticResource StandaloneTabs}" SelectionChanged="fsmTabControl_SelectionChanged">
+            <!--
+            For layout testing
+            <TabItem Header="File 1">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="File 2">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="File 3">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>-->
+        </TabControl>
         <TabControl Canvas.Left="707" Width="250" Canvas.Top="10" HorizontalAlignment="Right" Margin="0,26,10,10">
             <TabItem Header="State">
                 <Grid Background="#FFE5E5E5">
