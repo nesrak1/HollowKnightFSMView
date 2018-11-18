@@ -706,15 +706,10 @@ namespace PlayMakerFSMViewer
             if (am == null)
                 CreateAssetManager();
 
-            string gamePath = SteamHelper.FindHollowKnightPath();
-            if (gamePath == "" || !Directory.Exists(gamePath))
-            {
-                MessageBox.Show("Could not find Steam path. If you've moved your Steam directory this could be why. Contact nes.");
-                return;
-            }
+            string gameDataPath = GetGamePath();
 
-            string gameDataPath = Path.Combine(gamePath, "hollow_knight_Data");
-
+            if (string.IsNullOrEmpty(gameDataPath)) return;
+            
             using (FileStream stream = new FileStream(Path.Combine(gameDataPath, "globalgamemanagers"), FileMode.Open))
             {
                 AssetsFileInstance inst = am.LoadAssetsFile(stream, false);
@@ -745,6 +740,33 @@ namespace PlayMakerFSMViewer
             //{
             //    scenes.Add("");
             //}
+        }
+        
+        private void OpenResources_Click(object sender, RoutedEventArgs e)
+        {
+            if (am == null)
+                CreateAssetManager();
+
+            string gameDataPath = GetGamePath();
+
+            if (string.IsNullOrEmpty(gameDataPath)) return;
+            
+            LoadFSMs(Path.Combine(gameDataPath, "resources.assets"));
+        }
+
+        private string GetGamePath()
+        {
+            string gamePath = SteamHelper.FindHollowKnightPath();
+            
+            if (gamePath == "" || !Directory.Exists(gamePath))
+            {
+                MessageBox.Show("Could not find Steam path. If you've moved your Steam directory this could be why. Contact nes.");
+                return null;
+            }
+
+            string gameDataPath = Path.Combine(gamePath, "hollow_knight_Data");
+
+            return gameDataPath;
         }
 
         private void OpenLast_Click(object sender, RoutedEventArgs e)

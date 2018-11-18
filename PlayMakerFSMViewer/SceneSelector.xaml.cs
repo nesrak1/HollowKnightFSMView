@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET.Extra;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,8 +23,10 @@ namespace PlayMakerFSMViewer
     public partial class SceneSelector : Window
     {
         private List<string> scenes;
-        private bool dontAllowSelect = false;
+        private bool dontAllowSelect;
         public string selectedFile;
+        private ICollectionView view;
+        
         public SceneSelector(List<string> scenes)
         {
             this.scenes = scenes;
@@ -42,6 +45,8 @@ namespace PlayMakerFSMViewer
                 index++;
             }
             listBox.ItemsSource = fsms;
+            view = CollectionViewSource.GetDefaultView(listBox.ItemsSource);
+            view.Filter = Filter;
         }
 
         private void selectButton_Click(object sender, RoutedEventArgs e)
@@ -51,6 +56,16 @@ namespace PlayMakerFSMViewer
             dontAllowSelect = true;
             selectedFile = scenes[((SceneListItem)listBox.SelectedItem).index];
             Close();
+        }
+        
+        private void searchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            view.Refresh();
+        }
+
+        private bool Filter(object obj)
+        {
+            return searchBox.Text == "" || searchBox.Text.ToUpper().Split(' ', '_').All(x => obj.ToString().ToUpper().Contains(x));
         }
 
         public struct SceneListItem
