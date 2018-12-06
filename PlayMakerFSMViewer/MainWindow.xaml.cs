@@ -280,6 +280,11 @@ namespace PlayMakerFSMViewer
             }
             for (int i = 0; i < globalTransitions.GetValue().AsArray().size; i++)
             {
+                AssetTypeValueField transition = globalTransitions.Get((uint)i);
+
+                FsmTransition dotNetTransition = new FsmTransition(transition);
+                Node toNode = nodes.FirstOrDefault(n => n.name == dotNetTransition.toState);
+
                 if (toNode == null)
                 {
                     Console.WriteLine("error: transition going to non-existant node");
