@@ -717,9 +717,9 @@ namespace PlayMakerFSMViewer
 
             if (string.IsNullOrEmpty(gameDataPath)) return;
             
-            using (FileStream stream = new FileStream(Path.Combine(gameDataPath, "globalgamemanagers"), FileMode.Open))
-            {
-                AssetsFileInstance inst = am.LoadAssetsFile(stream, false);
+            //using (FileStream stream = new FileStream(Path.Combine(gameDataPath, "globalgamemanagers"), FileMode.Open))
+            //{
+                AssetsFileInstance inst = am.LoadAssetsFile(Path.Combine(gameDataPath, "globalgamemanagers"), false);
                 AssetFileInfoEx buildSettings = inst.table.getAssetInfo(11);
 
                 List<string> scenes = new List<string>();
@@ -739,7 +739,7 @@ namespace PlayMakerFSMViewer
                     openLast.IsEnabled = true;
                     LoadFSMs(filePath);
                 }
-            }
+            //}
             //am.LoadAssetsFile()
             //
             //AssetTypeValueField sceneArray = baseField.Get("scenes").Get("Array");
