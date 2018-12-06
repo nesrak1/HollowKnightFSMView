@@ -280,23 +280,25 @@ namespace PlayMakerFSMViewer
             }
             for (int i = 0; i < globalTransitions.GetValue().AsArray().size; i++)
             {
-                AssetTypeValueField transition = globalTransitions.Get((uint)i);
-
-                FsmTransition dotNetTransition = new FsmTransition(transition);
-                Node toNode = nodes.FirstOrDefault(n => n.name == dotNetTransition.toState);
-
-                Rect rect = new Rect(
-                    toNode.Transform.X,
-                    toNode.Transform.Y - 50,
-                    toNode.Transform.Width,
-                    18);
-
-                if (toNode != null)
+                if (toNode == null)
                 {
-                    Node node = new Node(null, dotNetTransition.fsmEvent.name, rect, new[] { dotNetTransition });
-                    nodes.Add(node);
+                    Console.WriteLine("error: transition going to non-existant node");
+                }
+                else
+                {
+                    Rect rect = new Rect(
+                        toNode.Transform.X,
+                        toNode.Transform.Y - 50,
+                        toNode.Transform.Width,
+                        18);
 
-                    graphCanvas.Children.Add(node.grid);
+                    if (toNode != null)
+                    {
+                        Node node = new Node(null, dotNetTransition.fsmEvent.name, rect, new[] { dotNetTransition });
+                        nodes.Add(node);
+
+                        graphCanvas.Children.Add(node.grid);
+                    }
                 }
             }
             foreach (Node node in nodes)
