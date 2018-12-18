@@ -14,6 +14,7 @@
                 <MenuItem Header="Open resources.assets" Click="OpenResources_Click" />
             </MenuItem>
             <MenuItem x:Name="openLast" Header="Open Last" Click="OpenLast_Click" IsEnabled="False" />
+            <MenuItem x:Name="closeTab" Header="Close Tab" Click="CloseTab_Click" IsEnabled="False" />
         </Menu>
         <Canvas x:Name="graphCanvas" Height="383" Margin="10,26,10,0" VerticalAlignment="Top">
             <Canvas.RenderTransform>

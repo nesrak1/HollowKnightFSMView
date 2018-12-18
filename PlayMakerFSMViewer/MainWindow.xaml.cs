@@ -212,7 +212,7 @@ namespace PlayMakerFSMViewer
             string tabName = assetInfos.FirstOrDefault(i => i.id == (ulong)selector.selectedID).name;
             TabItem tab = new TabItem
             {
-                Name = tabName.Replace(" ","").Replace("-","_").Replace("(","_").Replace(")","_"),
+                //Name = tabName.Replace(" ","").Replace("-","_").Replace("(","_").Replace(")","_"),
                 Header = tabName
             };
             ignoreChangeEvent = true;
@@ -287,7 +287,7 @@ namespace PlayMakerFSMViewer
 
                 if (toNode == null)
                 {
-                    Console.WriteLine("error: transition going to non-existant node");
+                    System.Diagnostics.Debug.WriteLine("transition " + dotNetTransition.fsmEvent.name + " going to non-existant node " + dotNetTransition.toState);
                 }
                 else
                 {
@@ -704,6 +704,7 @@ namespace PlayMakerFSMViewer
             {
                 lastFilename = openFileDialog.FileName;
                 openLast.IsEnabled = true;
+                closeTab.IsEnabled = true;
                 LoadFSMs(openFileDialog.FileName);
             }
         }
@@ -737,6 +738,7 @@ namespace PlayMakerFSMViewer
                     string filePath = Path.Combine(gameDataPath, "level" + levelId);
                     lastFilename = filePath;
                     openLast.IsEnabled = true;
+                    closeTab.IsEnabled = true;
                     LoadFSMs(filePath);
                 }
             //}
@@ -757,8 +759,36 @@ namespace PlayMakerFSMViewer
             string gameDataPath = GetGamePath();
 
             if (string.IsNullOrEmpty(gameDataPath)) return;
-            
-            LoadFSMs(Path.Combine(gameDataPath, "resources.assets"));
+
+            string filePath = Path.Combine(gameDataPath, "resources.assets");
+            lastFilename = filePath;
+            openLast.IsEnabled = true;
+            closeTab.IsEnabled = true;
+
+            LoadFSMs(filePath);
+        }
+
+        private void CloseTab_Click(object sender, RoutedEventArgs e)
+        {
+            ignoreChangeEvent = true;
+            SaveAndClearNodes();
+            if (tabs.Count > 1)
+            {
+                int oldTab = currentTab;
+                if (currentTab > 0)
+                    currentTab = currentTab - 1;
+                LoadSavedNodes(currentTab);
+                fsmTabControl.Items.Remove(fsmTabControl.SelectedItem);
+                fsmTabControl.SelectedIndex = currentTab;
+                tabs.RemoveAt(oldTab);
+            }
+            else
+            {
+                fsmTabControl.Items.Remove(fsmTabControl.SelectedItem);
+                tabs.RemoveAt(currentTab);
+                closeTab.IsEnabled = false;
+            }
+            ignoreChangeEvent = false;
         }
 
         private string GetGamePath()
@@ -779,6 +809,7 @@ namespace PlayMakerFSMViewer
         private void OpenLast_Click(object sender, RoutedEventArgs e)
         {
             LoadFSMs(lastFilename);
+            closeTab.IsEnabled = true;
         }
 
         private void fsmTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)

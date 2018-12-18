@@ -38,7 +38,7 @@ namespace PlayMakerFSMViewer
             string path = SearchAllInstallations(Path.Combine(appsPath, "libraryfolders.vdf"), appid, gameName);
             if (path == null)
             {
-                MessageBox.Show($"It appears you don't have {gameName} installed anywhere. The game files are needed to run the server.");
+                MessageBox.Show($"It appears you don't have {gameName} installed anywhere. The game files are needed to find the game.");
             }
             else
             {
