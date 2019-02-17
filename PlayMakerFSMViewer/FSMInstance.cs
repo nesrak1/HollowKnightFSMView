@@ -16,5 +16,6 @@ namespace PlayMakerFSMViewer
         public List<UIElement> variables;
         public List<UIElement> graphElements;
         public List<Node> nodes;
+        public int dataVersion;
     }
 }

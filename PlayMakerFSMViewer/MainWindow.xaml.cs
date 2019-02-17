@@ -225,22 +225,24 @@ namespace PlayMakerFSMViewer
 
             currentTab++;
 
-            //from uabe
-            ClassDatabaseType cldt = AssetHelper.FindAssetClassByID(am.classFile, afi.curFileType);
-            AssetTypeTemplateField pBaseField = new AssetTypeTemplateField();
-            pBaseField.FromClassDatabase(am.classFile, cldt, 0);
-            AssetTypeInstance mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
-            AssetTypeTemplateField[] desMonos;
-            desMonos = TryDeserializeMono(mainAti, am, folderName);
-            if (desMonos != null)
-            {
-                AssetTypeTemplateField[] templateField = pBaseField.children.Concat(desMonos).ToArray();
-                pBaseField.children = templateField;
-                pBaseField.childrenCount = (uint)pBaseField.children.Length;
+            AssetTypeValueField baseField = am.GetMonoBaseFieldCached(curFile, afi, Path.Combine(Path.GetDirectoryName(curFile.path), "Managed"));
 
-                mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
-            }
-            AssetTypeValueField baseField = mainAti.GetBaseField();
+            //from uabe
+            //ClassDatabaseType cldt = AssetHelper.FindAssetClassByID(am.classFile, afi.curFileType);
+            //AssetTypeTemplateField pBaseField = new AssetTypeTemplateField();
+            //pBaseField.FromClassDatabase(am.classFile, cldt, 0);
+            //AssetTypeInstance mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
+            //AssetTypeTemplateField[] desMonos;
+            //desMonos = TryDeserializeMono(mainAti, am, folderName);
+            //if (desMonos != null)
+            //{
+            //    AssetTypeTemplateField[] templateField = pBaseField.children.Concat(desMonos).ToArray();
+            //    pBaseField.children = templateField;
+            //    pBaseField.childrenCount = (uint)pBaseField.children.Length;
+            //
+            //    mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
+            //}
+            //AssetTypeValueField baseField = mainAti.GetBaseField();
                 
             AssetTypeValueField fsm = baseField.Get("fsm");
             AssetTypeValueField states = fsm.Get("states");
@@ -527,6 +529,7 @@ namespace PlayMakerFSMViewer
                     {
                         matrix = mt.Matrix,
                         nodes = nodes,
+                        dataVersion = dataVersion,
                         graphElements = CopyChildrenToList(graphCanvas),
                         states = CopyChildrenToList(stateList),
                         events = CopyChildrenToList(eventList),
@@ -559,6 +562,7 @@ namespace PlayMakerFSMViewer
             CopyListToChildren(eventList, curInstance.events);
             CopyListToChildren(variableList, curInstance.variables);
             CopyListToChildren(graphCanvas, curInstance.graphElements);
+            dataVersion = curInstance.dataVersion;
         }
 
         private void SidebarData(Node node)
@@ -777,10 +781,10 @@ namespace PlayMakerFSMViewer
                 int oldTab = currentTab;
                 if (currentTab > 0)
                     currentTab = currentTab - 1;
+                tabs.RemoveAt(oldTab);
                 LoadSavedNodes(currentTab);
                 fsmTabControl.Items.Remove(fsmTabControl.SelectedItem);
                 fsmTabControl.SelectedIndex = currentTab;
-                tabs.RemoveAt(oldTab);
             }
             else
             {

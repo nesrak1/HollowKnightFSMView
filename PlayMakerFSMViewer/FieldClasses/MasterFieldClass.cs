@@ -78,4 +78,15 @@ namespace PlayMakerFSMViewer.FieldClasses
         FsmArray,
         FsmEnum
     }
+
+    public enum EventTarget
+    {
+        Self,
+        GameObject,
+        GameObjectFSM,
+        FSMComponent,
+        BroadcastAll,
+        HostFSM,
+        SubFSMs
+    }
 }

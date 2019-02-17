@@ -43,11 +43,15 @@ namespace PlayMakerFSMViewer
                 switch (type)
                 {
                     case ParamDataType.Integer:
-                    case ParamDataType.Enum:
                     case ParamDataType.FsmInt:
                     case ParamDataType.FsmEnum:
                     {
                         displayValue = reader.ReadInt32().ToString();
+                        break;
+                    }
+                    case ParamDataType.Enum:
+                    {
+                        displayValue = "Enum " + reader.ReadInt32().ToString();
                         break;
                     }
                     case ParamDataType.Boolean:
@@ -112,6 +116,11 @@ namespace PlayMakerFSMViewer
                     case ParamDataType.Integer:
                     {
                         displayValue = reader.ReadInt32().ToString();
+                        break;
+                    }
+                    case ParamDataType.Enum:
+                    {
+                        displayValue = "Enum " + reader.ReadInt32().ToString();
                         break;
                     }
                     case ParamDataType.Boolean:
@@ -426,6 +435,14 @@ namespace PlayMakerFSMViewer
                             break;
                         }
                     }
+                    break;
+                }
+                case ParamDataType.FsmEventTarget:
+                {
+                    AssetTypeValueField fsmObjectParam = actionData.Get("fsmEventTargetParams").Get((uint)paramDataPos);
+                    EventTarget target = (EventTarget)fsmObjectParam.Get("target").GetValue().AsInt();
+                    bool exclude = fsmObjectParam.Get("excludeSelf").Get("value").GetValue().AsBool();
+                    displayValue = target.ToString() + (exclude ? "!" : "");
                     break;
                 }
                 case ParamDataType.Array:
