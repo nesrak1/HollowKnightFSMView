@@ -38,7 +38,16 @@ namespace PlayMakerFSMViewer
             string path = SearchAllInstallations(Path.Combine(appsPath, "libraryfolders.vdf"), appid, gameName);
             if (path == null)
             {
-                MessageBox.Show($"It appears you don't have {gameName} installed anywhere. The game files are needed to find the game.");
+                MessageBox.Show("Couldn't find installation automatically. Please pick the location manually.");
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.ValidateNames = false;
+                ofd.CheckFileExists = false;
+                ofd.CheckPathExists = true;
+                if (ofd.ShowDialog() == true)
+                {
+                    return Path.GetDirectoryName(ofd.FileName);
+                    //MessageBox.Show($"It appears you don't have {gameName} installed anywhere. The game files are needed to find the game.");
+                }
             }
             else
             {
@@ -50,6 +59,10 @@ namespace PlayMakerFSMViewer
 
         private static string SearchAllInstallations(string libraryfolders, int appid, string gameName)
         {
+            if (!File.Exists(libraryfolders))
+            {
+                return null;
+            }
             StreamReader file = new StreamReader(libraryfolders);
             string line;
             while ((line = file.ReadLine()) != null)

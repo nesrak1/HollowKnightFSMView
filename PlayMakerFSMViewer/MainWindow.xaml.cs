@@ -275,7 +275,7 @@ namespace PlayMakerFSMViewer
                         node2.Selected = false;
                     }
                     node.Selected = true;
-                    SidebarData(node);
+                    SidebarData(node, curFile);
                 };
 
                 graphCanvas.Children.Add(node.grid);
@@ -565,13 +565,13 @@ namespace PlayMakerFSMViewer
             dataVersion = curInstance.dataVersion;
         }
 
-        private void SidebarData(Node node)
+        private void SidebarData(Node node, AssetsFileInstance inst)
         {
             stateList.Children.Clear();
 
             AssetTypeValueField actionData = node.state.Get("actionData");
             uint actionCount = actionData.Get("actionNames").GetValue().AsArray().size;
-            string[] actionValues = ActionReader.ActionValues(actionData, dataVersion);
+            string[] actionValues = ActionReader.ActionValues(actionData, inst, dataVersion);
             for (int i = 0; i < actionCount; i++)
             {
                 string actionName = actionData.Get("actionNames").Get((uint)i).GetValue().AsString();

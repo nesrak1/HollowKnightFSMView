@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AssetsTools.NET.Extra;
 
 namespace PlayMakerFSMViewer
 {
     public class ActionReader
     {
-        public static string[] ActionValues(AssetTypeValueField actionData, int version)
+        public static string[] ActionValues(AssetTypeValueField actionData, AssetsFileInstance inst, int version)
         {
             AssetTypeValueField paramDataType = actionData.Get("paramDataType");
             uint paramCount = paramDataType.GetValue().AsArray().size;
@@ -26,7 +27,7 @@ namespace PlayMakerFSMViewer
                 int paramByteDataSize = actionData.Get("paramByteDataSize").Get((uint)i).GetValue().AsInt();
                 reader.BaseStream.Position = paramDataPos;
                 string displayValue = "? " + type;
-                displayValue = GetDisplayValue(actionData, version, type, paramDataPos, paramByteDataSize, reader);
+                displayValue = GetDisplayValue(actionData, inst, version, type, paramDataPos, paramByteDataSize, reader);
                 actionValues[i] = displayValue;
             }
             reader.Close();
@@ -34,7 +35,7 @@ namespace PlayMakerFSMViewer
             return actionValues;
         }
 
-        public static string GetDisplayValue(AssetTypeValueField actionData, int version,
+        public static string GetDisplayValue(AssetTypeValueField actionData, AssetsFileInstance inst, int version,
             ParamDataType type, int paramDataPos, int paramByteDataSize, BinaryReader reader)
         {
             string displayValue = "? " + type;
@@ -272,6 +273,8 @@ namespace PlayMakerFSMViewer
                     AssetTypeValueField value = fsmObjectParam.Get("value");
                     int m_FileID = value.Get("m_FileID").GetValue().AsInt();
                     long m_PathID = value.Get("m_PathID").GetValue().AsInt64();
+                    if (name == "")
+                        name += GetAssetNameFast(m_FileID, m_PathID, inst);
                     displayValue = name;
                     if (typeName != "")
                     {
@@ -417,6 +420,8 @@ namespace PlayMakerFSMViewer
                             int m_FileID = value.Get("m_FileID").GetValue().AsInt();
                             long m_PathID = value.Get("m_PathID").GetValue().AsInt64();
                             displayValue = functionName + "(" + name;
+                            if (name == "")
+                                name += GetAssetNameFast(m_FileID, m_PathID, inst);
                             if (m_PathID != 0)
                             {
                                 if (name != "")
@@ -486,6 +491,60 @@ namespace PlayMakerFSMViewer
                 data[i] = (byte)field.Get((uint)i).GetValue().AsUInt();
             }
             return data;
+        }
+
+        private static HashSet<uint> allowed = new HashSet<uint>
+        {
+            0x15,0x1C,0x2B,0x30,0x31,0x3E,0x48,0x4A,0x53,0x54,
+            0x56,0x59,0x5A,0x5B,0x6D,0x73,0x75,0x79,0x80,0x86,
+            0x8E,0x96,0x98,0x9C,0x9E,0xAB,0xB8,0xB9,0xBA,0xBB,
+            0xBC,0xC8,0xD5,0xDD,0xE2,0xE4,0xEE,0xF0,0x102,0x10F,
+            0x110,0x111,0x122,0x13F,0x149,0x16B,0x583D8C3F
+        };
+
+        private static string GetAssetNameFast(int fileId, long pathId, AssetsFileInstance inst)
+        {
+            AssetsFile file = null;
+            AssetsFileTable table = null;
+            if (fileId == 0)
+            {
+                file = inst.file;
+                table = inst.table;
+            }
+            else
+            {
+                AssetsFileInstance dep = inst.dependencies[fileId - 1];
+                file = dep.file;
+                table = dep.table;
+            }
+
+            AssetFileInfoEx inf = table.getAssetInfo((ulong)pathId);
+            AssetsFileReader reader = file.reader;
+
+            if (allowed.Contains(inf.curFileType))
+            {
+                reader.Position = inf.absoluteFilePos;
+                return reader.ReadCountStringInt32();
+            }
+            if (inf.curFileType == 0x1)
+            {
+                reader.Position = inf.absoluteFilePos;
+                int size = reader.ReadInt32();
+                reader.Position += (ulong)(size * 12);
+                reader.Position += 4;
+                return reader.ReadCountStringInt32();
+            }
+            else if (inf.curFileType == 0x72)
+            {
+                reader.Position = inf.absoluteFilePos;
+                reader.Position += 28;
+                string name = reader.ReadCountStringInt32();
+                if (name != "")
+                {
+                    return name;
+                }
+            }
+            return "";
         }
     }
 }
