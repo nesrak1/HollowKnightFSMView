@@ -254,6 +254,8 @@ namespace PlayMakerFSMViewer
                     AssetTypeValueField value = gameObject.Get("value");
                     int m_FileID = value.Get("m_FileID").GetValue().AsInt();
                     long m_PathID = value.Get("m_PathID").GetValue().AsInt64();
+                    if (name == "")
+                        name += GetAssetNameFast(m_FileID, m_PathID, inst);
                     displayValue = name;
                     if (m_PathID != 0)
                     {
