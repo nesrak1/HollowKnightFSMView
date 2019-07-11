@@ -506,6 +506,9 @@ namespace PlayMakerFSMViewer
 
         private static string GetAssetNameFast(int fileId, long pathId, AssetsFileInstance inst)
         {
+            if (pathId == 0)
+                return "";
+
             AssetsFile file = null;
             AssetsFileTable table = null;
             if (fileId == 0)
