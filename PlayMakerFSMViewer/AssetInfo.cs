@@ -8,7 +8,7 @@ namespace PlayMakerFSMViewer
 {
     public struct AssetInfo
     {
-        public ulong id;
+        public long id;
         public uint size;
         public string name;
     }

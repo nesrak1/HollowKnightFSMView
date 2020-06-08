@@ -15,16 +15,16 @@ namespace PlayMakerFSMViewer
         public static string[] ActionValues(AssetTypeValueField actionData, AssetsFileInstance inst, int version)
         {
             AssetTypeValueField paramDataType = actionData.Get("paramDataType");
-            uint paramCount = paramDataType.GetValue().AsArray().size;
+            int paramCount = paramDataType.GetValue().AsArray().size;
             byte[] byteData = GetByteData(actionData.Get("byteData"));
             MemoryStream stream = new MemoryStream(byteData);
             BinaryReader reader = new BinaryReader(stream);
             string[] actionValues = new string[paramCount];
             for (int i = 0; i < paramCount; i++)
             {
-                ParamDataType type = (ParamDataType)paramDataType.Get((uint)i).GetValue().AsInt();
-                int paramDataPos = actionData.Get("paramDataPos").Get((uint)i).GetValue().AsInt();
-                int paramByteDataSize = actionData.Get("paramByteDataSize").Get((uint)i).GetValue().AsInt();
+                ParamDataType type = (ParamDataType)paramDataType.Get(i).GetValue().AsInt();
+                int paramDataPos = actionData.Get("paramDataPos").Get(i).GetValue().AsInt();
+                int paramByteDataSize = actionData.Get("paramByteDataSize").Get(i).GetValue().AsInt();
                 reader.BaseStream.Position = paramDataPos;
                 string displayValue = "? " + type;
                 displayValue = GetDisplayValue(actionData, inst, version, type, paramDataPos, paramByteDataSize, reader);
@@ -157,13 +157,13 @@ namespace PlayMakerFSMViewer
 
                     case ParamDataType.FsmInt:
                     {
-                        field = actionData.Get("fsmIntParams").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmIntParams").Get(paramDataPos);
                         displayValue = field.Get("value").GetValue().AsInt().ToString();
                         break;
                     }
                     case ParamDataType.FsmEnum:
                     {
-                        field = actionData.Get("fsmEnumParams").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmEnumParams").Get(paramDataPos);
                         string intValue = field.Get("intValue").GetValue().AsInt().ToString();
                         string enumName = field.Get("enumName").GetValue().AsString().ToString();
                         displayValue = $"{intValue} ({enumName})";
@@ -171,31 +171,31 @@ namespace PlayMakerFSMViewer
                     }
                     case ParamDataType.FsmBool:
                     {
-                        field = actionData.Get("fsmBoolParams").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmBoolParams").Get(paramDataPos);
                         displayValue = field.Get("value").GetValue().AsBool().ToString();
                         break;
                     }
                     case ParamDataType.FsmFloat:
                     {
-                        field = actionData.Get("fsmFloatParams").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmFloatParams").Get(paramDataPos);
                         displayValue = field.Get("value").GetValue().AsFloat().ToString();
                         break;
                     }
                     case ParamDataType.FsmString:
                     {
-                        field = actionData.Get("fsmStringParams").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmStringParams").Get(paramDataPos);
                         displayValue = field.Get("value").GetValue().AsString();
                         break;
                     }
                     case ParamDataType.FsmEvent:
                     {
-                        field = actionData.Get("stringParams").Get((uint)paramDataPos);
+                        field = actionData.Get("stringParams").Get(paramDataPos);
                         displayValue = field.GetValue().AsString();
                         break;
                     }
                     case ParamDataType.FsmVector2:
                     {
-                        field = actionData.Get("fsmVector2Params").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmVector2Params").Get(paramDataPos);
                         AssetTypeValueField value = field.Get("value");
                         string x = value.Get("x").GetValue().AsFloat().ToString();
                         string y = value.Get("y").GetValue().AsFloat().ToString();
@@ -204,7 +204,7 @@ namespace PlayMakerFSMViewer
                     }
                     case ParamDataType.FsmVector3:
                     {
-                        field = actionData.Get("fsmVector3Params").Get((uint)paramDataPos);
+                        field = actionData.Get("fsmVector3Params").Get(paramDataPos);
                         AssetTypeValueField value = field.Get("value");
                         string x = value.Get("x").GetValue().AsFloat().ToString();
                         string y = value.Get("y").GetValue().AsFloat().ToString();
@@ -236,7 +236,7 @@ namespace PlayMakerFSMViewer
                     AssetTypeValueField gameObject;
                     if (type == ParamDataType.FsmOwnerDefault)
                     {
-                        AssetTypeValueField fsmOwnerDefaultParam = actionData.Get("fsmOwnerDefaultParams").Get((uint)paramDataPos);
+                        AssetTypeValueField fsmOwnerDefaultParam = actionData.Get("fsmOwnerDefaultParams").Get(paramDataPos);
 
                         if (fsmOwnerDefaultParam["ownerOption"].GetValue().AsInt() == 0)
                         {
@@ -248,7 +248,7 @@ namespace PlayMakerFSMViewer
                     }
                     else
                     {
-                        gameObject = actionData.Get("fsmGameObjectParams").Get((uint)paramDataPos);
+                        gameObject = actionData.Get("fsmGameObjectParams").Get(paramDataPos);
                     }
                     string name = gameObject.Get("name").GetValue().AsString();
                     AssetTypeValueField value = gameObject.Get("value");
@@ -267,7 +267,7 @@ namespace PlayMakerFSMViewer
                 }
                 case ParamDataType.FsmObject:
                 {
-                    AssetTypeValueField fsmObjectParam = actionData.Get("fsmObjectParams").Get((uint)paramDataPos);
+                    AssetTypeValueField fsmObjectParam = actionData.Get("fsmObjectParams").Get(paramDataPos);
                     string name = fsmObjectParam.Get("name").GetValue().AsString();
                     string typeName = fsmObjectParam.Get("typeName").GetValue().AsString();
                     if (typeName.Contains("."))
@@ -293,7 +293,7 @@ namespace PlayMakerFSMViewer
                 }
                 case ParamDataType.FunctionCall:
                 {
-                    AssetTypeValueField functionCallParam = actionData.Get("functionCallParams").Get((uint)paramDataPos);
+                    AssetTypeValueField functionCallParam = actionData.Get("functionCallParams").Get(paramDataPos);
                     string functionName = functionCallParam.Get("FunctionName").GetValue().AsString();
                     string parameterType = functionCallParam.Get("parameterType").GetValue().AsString();
                     AssetTypeValueField field = null;
@@ -446,7 +446,7 @@ namespace PlayMakerFSMViewer
                 }
                 case ParamDataType.FsmEventTarget:
                 {
-                    AssetTypeValueField fsmObjectParam = actionData.Get("fsmEventTargetParams").Get((uint)paramDataPos);
+                    AssetTypeValueField fsmObjectParam = actionData.Get("fsmEventTargetParams").Get(paramDataPos);
                     EventTarget target = (EventTarget)fsmObjectParam.Get("target").GetValue().AsInt();
                     bool exclude = fsmObjectParam.Get("excludeSelf").Get("value").GetValue().AsBool();
                     displayValue = target.ToString() + (exclude ? "!" : "");
@@ -490,7 +490,7 @@ namespace PlayMakerFSMViewer
             byte[] data = new byte[field.GetValue().AsArray().size];
             for (int i = 0; i < data.Length; i++)
             {
-                data[i] = (byte)field.Get((uint)i).GetValue().AsUInt();
+                data[i] = (byte)field.Get(i).GetValue().AsUInt();
             }
             return data;
         }
@@ -523,7 +523,7 @@ namespace PlayMakerFSMViewer
                 table = dep.table;
             }
 
-            AssetFileInfoEx inf = table.getAssetInfo((ulong)pathId);
+            AssetFileInfoEx inf = table.GetAssetInfo(pathId);
             AssetsFileReader reader = file.reader;
 
             if (allowed.Contains(inf.curFileType))
@@ -535,7 +535,7 @@ namespace PlayMakerFSMViewer
             {
                 reader.Position = inf.absoluteFilePos;
                 int size = reader.ReadInt32();
-                reader.Position += (ulong)(size * 12);
+                reader.Position += (size * 12);
                 reader.Position += 4;
                 return reader.ReadCountStringInt32();
             }

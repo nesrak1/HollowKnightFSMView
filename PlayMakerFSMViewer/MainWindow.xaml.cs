@@ -140,12 +140,12 @@ namespace PlayMakerFSMViewer
             List<AssetInfo> assetInfos = new List<AssetInfo>();
             uint assetCount = table.assetFileInfoCount;
             uint fsmTypeId = 0;
-            foreach (AssetFileInfoEx info in table.pAssetFileInfo)
+            foreach (AssetFileInfoEx info in table.assetFileInfo)
             {
                 bool isMono = false;
                 if (fsmTypeId == 0)
                 {
-                    ushort monoType = file.typeTree.pTypes_Unity5[info.curFileTypeOrIndex].scriptIndex;
+                    ushort monoType = file.typeTree.unity5Types[info.curFileTypeOrIndex].scriptIndex;
                     if (monoType != 0xFFFF)
                     {
                         isMono = true;
@@ -207,9 +207,9 @@ namespace PlayMakerFSMViewer
             if (selector.selectedID == -1)
                 return;
             
-            AssetFileInfoEx afi = table.getAssetInfo((ulong)selector.selectedID);
+            AssetFileInfoEx afi = table.GetAssetInfo(selector.selectedID);
 
-            string tabName = assetInfos.FirstOrDefault(i => i.id == (ulong)selector.selectedID).name;
+            string tabName = assetInfos.FirstOrDefault(i => i.id == selector.selectedID).name;
             TabItem tab = new TabItem
             {
                 //Name = tabName.Replace(" ","").Replace("-","_").Replace("(","_").Replace(")","_"),
@@ -250,7 +250,7 @@ namespace PlayMakerFSMViewer
             dataVersion = fsm.Get("dataVersion").GetValue().AsInt();
             for (int i = 0; i < states.GetValue().AsArray().size; i++)
             {
-                AssetTypeValueField state = states.Get((uint)i);
+                AssetTypeValueField state = states.Get(i);
                 //move all of this into node
                 string name = state.Get("name").GetValue().AsString();
                 AssetTypeValueField rect = state.Get("position");
@@ -259,11 +259,11 @@ namespace PlayMakerFSMViewer
                                             rect.Get("width").GetValue().AsFloat(),
                                             rect.Get("height").GetValue().AsFloat());
                 AssetTypeValueField transitions = state.Get("transitions");
-                uint transitionCount = transitions.GetValue().AsArray().size;
+                int transitionCount = transitions.GetValue().AsArray().size;
                 FsmTransition[] dotNetTransitions = new FsmTransition[transitionCount];
                 for (int j = 0; j < transitionCount; j++)
                 {
-                    dotNetTransitions[j] = new FsmTransition(transitions.Get((uint)j));
+                    dotNetTransitions[j] = new FsmTransition(transitions.Get(j));
                 }
                 Node node = new Node(state, name, dotNetRect, dotNetTransitions);
                 nodes.Add(node);
@@ -282,7 +282,7 @@ namespace PlayMakerFSMViewer
             }
             for (int i = 0; i < globalTransitions.GetValue().AsArray().size; i++)
             {
-                AssetTypeValueField transition = globalTransitions.Get((uint)i);
+                AssetTypeValueField transition = globalTransitions.Get(i);
 
                 FsmTransition dotNetTransition = new FsmTransition(transition);
                 Node toNode = nodes.FirstOrDefault(n => n.name == dotNetTransition.toState);
@@ -393,7 +393,7 @@ namespace PlayMakerFSMViewer
             AssetTypeValueField events = fsm.Get("events");
             for (int i = 0; i < events.GetValue().AsArray().size; i++)
             {
-                AssetTypeValueField @event = events.Get((uint) i);
+                AssetTypeValueField @event = events.Get(i);
                 string name = @event.Get("name").GetValue().AsString();
                 bool isSystemEvent = @event.Get("isSystemEvent").GetValue().AsBool();
                 bool isGlobal = @event.Get("isGlobal").GetValue().AsBool();
@@ -419,36 +419,36 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("Floats"));
             for (int i = 0; i < floatVariables.GetValue().AsArray().size; i++)
             {
-                string name = floatVariables.Get((uint)i).Get("name").GetValue().AsString();
-                string value = floatVariables.Get((uint)i).Get("value").GetValue().AsFloat().ToString();
+                string name = floatVariables.Get(i).Get("name").GetValue().AsString();
+                string value = floatVariables.Get(i).Get("value").GetValue().AsFloat().ToString();
                 variableList.Children.Add(CreateSidebarRow(name, value));
             }
             variableList.Children.Add(CreateSidebarHeader("Ints"));
             for (int i = 0; i < intVariables.GetValue().AsArray().size; i++)
             {
-                string name = intVariables.Get((uint)i).Get("name").GetValue().AsString();
-                string value = intVariables.Get((uint)i).Get("value").GetValue().AsInt().ToString();
+                string name = intVariables.Get(i).Get("name").GetValue().AsString();
+                string value = intVariables.Get(i).Get("value").GetValue().AsInt().ToString();
                 variableList.Children.Add(CreateSidebarRow(name, value));
             }
             variableList.Children.Add(CreateSidebarHeader("Bools"));
             for (int i = 0; i < boolVariables.GetValue().AsArray().size; i++)
             {
-                string name = boolVariables.Get((uint)i).Get("name").GetValue().AsString();
-                string value = boolVariables.Get((uint)i).Get("value").GetValue().AsBool().ToString().ToLower();
+                string name = boolVariables.Get(i).Get("name").GetValue().AsString();
+                string value = boolVariables.Get(i).Get("value").GetValue().AsBool().ToString().ToLower();
                 variableList.Children.Add(CreateSidebarRow(name, value));
             }
             variableList.Children.Add(CreateSidebarHeader("Strings"));
             for (int i = 0; i < stringVariables.GetValue().AsArray().size; i++)
             {
-                string name = stringVariables.Get((uint)i).Get("name").GetValue().AsString();
-                string value = stringVariables.Get((uint)i).Get("value").GetValue().AsString();
+                string name = stringVariables.Get(i).Get("name").GetValue().AsString();
+                string value = stringVariables.Get(i).Get("value").GetValue().AsString();
                 variableList.Children.Add(CreateSidebarRow(name, value));
             }
             variableList.Children.Add(CreateSidebarHeader("Vector2s"));
             for (int i = 0; i < vector2Variables.GetValue().AsArray().size; i++)
             {
-                string name = vector2Variables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField vector2 = vector2Variables.Get((uint)i).Get("value");
+                string name = vector2Variables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField vector2 = vector2Variables.Get(i).Get("value");
                 string value =  vector2.Get("x").GetValue().AsFloat().ToString() + ", ";
                         value += vector2.Get("y").GetValue().AsFloat().ToString();
                 variableList.Children.Add(CreateSidebarRow(name, value));
@@ -456,8 +456,8 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("Vector3s"));
             for (int i = 0; i < vector3Variables.GetValue().AsArray().size; i++)
             {
-                string name = vector3Variables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField vector3 = vector3Variables.Get((uint)i).Get("value");
+                string name = vector3Variables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField vector3 = vector3Variables.Get(i).Get("value");
                 string value =  vector3.Get("x").GetValue().AsFloat().ToString() + ", ";
                         value += vector3.Get("x").GetValue().AsFloat().ToString() + ", ";
                         value += vector3.Get("z").GetValue().AsFloat().ToString();
@@ -466,8 +466,8 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("Colors"));
             for (int i = 0; i < colorVariables.GetValue().AsArray().size; i++)
             {
-                string name = colorVariables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField color = colorVariables.Get((uint)i).Get("value");
+                string name = colorVariables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField color = colorVariables.Get(i).Get("value");
                 string value =  ((int)(color.Get("r").GetValue().AsFloat()) * 255).ToString("X2");
                         value += ((int)(color.Get("g").GetValue().AsFloat()) * 255).ToString("X2");
                         value += ((int)(color.Get("b").GetValue().AsFloat()) * 255).ToString("X2");
@@ -480,8 +480,8 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("Rects"));
             for (int i = 0; i < rectVariables.GetValue().AsArray().size; i++)
             {
-                string name = rectVariables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField rect = rectVariables.Get((uint)i).Get("value");
+                string name = rectVariables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField rect = rectVariables.Get(i).Get("value");
                 string value =  rect.Get("x").GetValue().AsFloat().ToString() + ", ";
                         value += rect.Get("y").GetValue().AsFloat().ToString() + ", ";
                         value += rect.Get("width").GetValue().AsFloat().ToString() + ", ";
@@ -491,8 +491,8 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("Quaternions"));
             for (int i = 0; i < quaternionVariables.GetValue().AsArray().size; i++)
             {
-                string name = quaternionVariables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField rect = quaternionVariables.Get((uint)i).Get("value");
+                string name = quaternionVariables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField rect = quaternionVariables.Get(i).Get("value");
                 string value =  rect.Get("x").GetValue().AsFloat().ToString() + ", ";
                         value += rect.Get("y").GetValue().AsFloat().ToString() + ", ";
                         value += rect.Get("z").GetValue().AsFloat().ToString() + ", ";
@@ -502,8 +502,8 @@ namespace PlayMakerFSMViewer
             variableList.Children.Add(CreateSidebarHeader("GameObjects"));
             for (int i = 0; i < gameObjectVariables.GetValue().AsArray().size; i++)
             {
-                string name = gameObjectVariables.Get((uint)i).Get("name").GetValue().AsString();
-                AssetTypeValueField gameObject = gameObjectVariables.Get((uint)i).Get("value");
+                string name = gameObjectVariables.Get(i).Get("name").GetValue().AsString();
+                AssetTypeValueField gameObject = gameObjectVariables.Get(i).Get("value");
                 int m_FileID = gameObject.Get("m_FileID").GetValue().AsInt();
                 long m_PathID = gameObject.Get("m_PathID").GetValue().AsInt64();
 
@@ -570,15 +570,15 @@ namespace PlayMakerFSMViewer
             stateList.Children.Clear();
 
             AssetTypeValueField actionData = node.state.Get("actionData");
-            uint actionCount = actionData.Get("actionNames").GetValue().AsArray().size;
+            int actionCount = actionData.Get("actionNames").GetValue().AsArray().size;
             string[] actionValues = ActionReader.ActionValues(actionData, inst, dataVersion);
             for (int i = 0; i < actionCount; i++)
             {
-                string actionName = actionData.Get("actionNames").Get((uint)i).GetValue().AsString();
+                string actionName = actionData.Get("actionNames").Get(i).GetValue().AsString();
                 if (actionName.Contains("."))
                     actionName = actionName.Substring(actionName.LastIndexOf(".")+1);
                 stateList.Children.Add(CreateSidebarHeader(actionName));
-                int startParam = actionData.Get("actionStartIndex").Get((uint)i).GetValue().AsInt();
+                int startParam = actionData.Get("actionStartIndex").Get(i).GetValue().AsInt();
                 int endParam;
                 if (i == actionCount - 1)
                 {
@@ -586,11 +586,11 @@ namespace PlayMakerFSMViewer
                 }
                 else
                 {
-                    endParam = actionData.Get("actionStartIndex").Get((uint)i + 1).GetValue().AsInt();
+                    endParam = actionData.Get("actionStartIndex").Get(i + 1).GetValue().AsInt();
                 }
                 for (int j = startParam; j < endParam; j++)
                 {
-                    string paramName = actionData.Get("paramName").Get((uint)j).GetValue().AsString();
+                    string paramName = actionData.Get("paramName").Get(j).GetValue().AsString();
                     stateList.Children.Add(CreateSidebarRow(paramName, actionValues[j]));
                 }
             }
@@ -671,9 +671,9 @@ namespace PlayMakerFSMViewer
             string assemblyPath = Path.Combine(rootDir, "Managed", assemblyName);
             if (File.Exists(assemblyPath))
             {
-                MonoClass mc = new MonoClass();
-                mc.Read(scriptName, assemblyPath);
-                return mc.children;
+                MonoDeserializer mc = new MonoDeserializer();
+                mc.Read(scriptName, assemblyPath, 0x11);
+                return mc.children.ToArray();
             }
             else
             {
@@ -725,12 +725,12 @@ namespace PlayMakerFSMViewer
             //using (FileStream stream = new FileStream(Path.Combine(gameDataPath, "globalgamemanagers"), FileMode.Open))
             //{
                 AssetsFileInstance inst = am.LoadAssetsFile(Path.Combine(gameDataPath, "globalgamemanagers"), false);
-                AssetFileInfoEx buildSettings = inst.table.getAssetInfo(11);
+                AssetFileInfoEx buildSettings = inst.table.GetAssetInfo(11);
 
                 List<string> scenes = new List<string>();
                 AssetTypeValueField baseField = am.GetATI(inst.file, buildSettings).GetBaseField();
                 AssetTypeValueField sceneArray = baseField.Get("scenes").Get("Array");
-                for (uint i = 0; i < sceneArray.GetValue().AsArray().size; i++)
+                for (int i = 0; i < sceneArray.GetValue().AsArray().size; i++)
                 {
                     scenes.Add(sceneArray[i].GetValue().AsString());
                 }
@@ -828,7 +828,7 @@ namespace PlayMakerFSMViewer
         {
             am = new AssetsManager();
             am.updateAfterLoad = false;
-            am.LoadClassPackage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cldb.dat"));
+            am.LoadClassDatabase(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cldb.dat"));
         }
     }
 }
