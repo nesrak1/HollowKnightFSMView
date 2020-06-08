@@ -224,26 +224,13 @@ namespace PlayMakerFSMViewer
             mt.Matrix = Matrix.Identity;
 
             currentTab++;
+            tabs.Add(new FSMInstance()
+            {
+                initialized = false
+            });
 
             AssetTypeValueField baseField = am.GetMonoBaseFieldCached(curFile, afi, Path.Combine(Path.GetDirectoryName(curFile.path), "Managed"));
 
-            //from uabe
-            //ClassDatabaseType cldt = AssetHelper.FindAssetClassByID(am.classFile, afi.curFileType);
-            //AssetTypeTemplateField pBaseField = new AssetTypeTemplateField();
-            //pBaseField.FromClassDatabase(am.classFile, cldt, 0);
-            //AssetTypeInstance mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
-            //AssetTypeTemplateField[] desMonos;
-            //desMonos = TryDeserializeMono(mainAti, am, folderName);
-            //if (desMonos != null)
-            //{
-            //    AssetTypeTemplateField[] templateField = pBaseField.children.Concat(desMonos).ToArray();
-            //    pBaseField.children = templateField;
-            //    pBaseField.childrenCount = (uint)pBaseField.children.Length;
-            //
-            //    mainAti = new AssetTypeInstance(1, new[] { pBaseField }, file.reader, false, afi.absoluteFilePos);
-            //}
-            //AssetTypeValueField baseField = mainAti.GetBaseField();
-                
             AssetTypeValueField fsm = baseField.Get("fsm");
             AssetTypeValueField states = fsm.Get("states");
             AssetTypeValueField globalTransitions = fsm.Get("globalTransitions");
@@ -523,10 +510,11 @@ namespace PlayMakerFSMViewer
         {
             if (currentTab != -1)
             {
-                if (currentTab > tabs.Count - 1)
+                if (!tabs[currentTab].initialized)
                 {
-                    tabs.Add(new FSMInstance()
+                    tabs[currentTab] = new FSMInstance()
                     {
+                        initialized = true,
                         matrix = mt.Matrix,
                         nodes = nodes,
                         dataVersion = dataVersion,
@@ -534,7 +522,7 @@ namespace PlayMakerFSMViewer
                         states = CopyChildrenToList(stateList),
                         events = CopyChildrenToList(eventList),
                         variables = CopyChildrenToList(variableList)
-                    });
+                    };
                 }
                 else
                 {
@@ -663,24 +651,6 @@ namespace PlayMakerFSMViewer
             return valueContainer;
         }
 
-        private AssetTypeTemplateField[] TryDeserializeMono(AssetTypeInstance ati, AssetsManager am, string rootDir)
-        {
-            AssetTypeInstance scriptAti = am.GetExtAsset(curFile, ati.GetBaseField().Get("m_Script")).instance;
-            string scriptName = scriptAti.GetBaseField().Get("m_Name").GetValue().AsString();
-            string assemblyName = scriptAti.GetBaseField().Get("m_AssemblyName").GetValue().AsString();
-            string assemblyPath = Path.Combine(rootDir, "Managed", assemblyName);
-            if (File.Exists(assemblyPath))
-            {
-                MonoDeserializer mc = new MonoDeserializer();
-                mc.Read(scriptName, assemblyPath, 0x11);
-                return mc.children.ToArray();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         private List<UIElement> CopyChildrenToList(Panel ele)
         {
             UIElement[] tempEle;
@@ -720,39 +690,30 @@ namespace PlayMakerFSMViewer
 
             string gameDataPath = GetGamePath();
 
-            if (string.IsNullOrEmpty(gameDataPath)) return;
+            if (string.IsNullOrEmpty(gameDataPath))
+                return;
             
-            //using (FileStream stream = new FileStream(Path.Combine(gameDataPath, "globalgamemanagers"), FileMode.Open))
-            //{
-                AssetsFileInstance inst = am.LoadAssetsFile(Path.Combine(gameDataPath, "globalgamemanagers"), false);
-                AssetFileInfoEx buildSettings = inst.table.GetAssetInfo(11);
+            AssetsFileInstance inst = am.LoadAssetsFile(Path.Combine(gameDataPath, "globalgamemanagers"), false);
+            AssetFileInfoEx buildSettings = inst.table.GetAssetInfo(11);
 
-                List<string> scenes = new List<string>();
-                AssetTypeValueField baseField = am.GetATI(inst.file, buildSettings).GetBaseField();
-                AssetTypeValueField sceneArray = baseField.Get("scenes").Get("Array");
-                for (int i = 0; i < sceneArray.GetValue().AsArray().size; i++)
-                {
-                    scenes.Add(sceneArray[i].GetValue().AsString());
-                }
-                SceneSelector sel = new SceneSelector(scenes);
-                sel.ShowDialog();
-                if (sel.selectedFile != "")
-                {
-                    int levelId = scenes.IndexOf(sel.selectedFile);
-                    string filePath = Path.Combine(gameDataPath, "level" + levelId);
-                    lastFilename = filePath;
-                    openLast.IsEnabled = true;
-                    closeTab.IsEnabled = true;
-                    LoadFSMs(filePath);
-                }
-            //}
-            //am.LoadAssetsFile()
-            //
-            //AssetTypeValueField sceneArray = baseField.Get("scenes").Get("Array");
-            //for (int i = 0; i < sceneArray.GetValue().AsArray().size; i++)
-            //{
-            //    scenes.Add("");
-            //}
+            List<string> scenes = new List<string>();
+            AssetTypeValueField baseField = am.GetATI(inst.file, buildSettings).GetBaseField();
+            AssetTypeValueField sceneArray = baseField.Get("scenes").Get("Array");
+            for (int i = 0; i < sceneArray.GetValue().AsArray().size; i++)
+            {
+                scenes.Add(sceneArray[i].GetValue().AsString());
+            }
+            SceneSelector sel = new SceneSelector(scenes);
+            sel.ShowDialog();
+            if (sel.selectedFile != "")
+            {
+                int levelId = scenes.IndexOf(sel.selectedFile);
+                string filePath = Path.Combine(gameDataPath, "level" + levelId);
+                lastFilename = filePath;
+                openLast.IsEnabled = true;
+                closeTab.IsEnabled = true;
+                LoadFSMs(filePath);
+            }
         }
         
         private void OpenResources_Click(object sender, RoutedEventArgs e)
@@ -790,6 +751,7 @@ namespace PlayMakerFSMViewer
             {
                 fsmTabControl.Items.Remove(fsmTabControl.SelectedItem);
                 tabs.RemoveAt(currentTab);
+                currentTab = -1;
                 closeTab.IsEnabled = false;
             }
             ignoreChangeEvent = false;
