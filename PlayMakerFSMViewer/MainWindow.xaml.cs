@@ -223,12 +223,6 @@ namespace PlayMakerFSMViewer
             SaveAndClearNodes();
             mt.Matrix = Matrix.Identity;
 
-            currentTab++;
-            tabs.Add(new FSMInstance()
-            {
-                initialized = false
-            });
-
             AssetTypeValueField baseField = am.GetMonoBaseFieldCached(curFile, afi, Path.Combine(Path.GetDirectoryName(curFile.path), "Managed"));
 
             AssetTypeValueField fsm = baseField.Get("fsm");
@@ -504,31 +498,26 @@ namespace PlayMakerFSMViewer
                 }
                 variableList.Children.Add(CreateSidebarRow(name, value));
             }
+
+            currentTab++;
+            tabs.Add(new FSMInstance()
+            {
+                matrix = mt.Matrix,
+                nodes = nodes,
+                dataVersion = dataVersion,
+                graphElements = CopyChildrenToList(graphCanvas),
+                states = CopyChildrenToList(stateList),
+                events = CopyChildrenToList(eventList),
+                variables = CopyChildrenToList(variableList)
+            });
         }
 
         private void SaveAndClearNodes()
         {
             if (currentTab != -1)
             {
-                if (!tabs[currentTab].initialized)
-                {
-                    tabs[currentTab] = new FSMInstance()
-                    {
-                        initialized = true,
-                        matrix = mt.Matrix,
-                        nodes = nodes,
-                        dataVersion = dataVersion,
-                        graphElements = CopyChildrenToList(graphCanvas),
-                        states = CopyChildrenToList(stateList),
-                        events = CopyChildrenToList(eventList),
-                        variables = CopyChildrenToList(variableList)
-                    };
-                }
-                else
-                {
-                    FSMInstance fsmInstance = tabs[currentTab];
-                    fsmInstance.matrix = mt.Matrix;
-                }
+                FSMInstance fsmInstance = tabs[currentTab];
+                fsmInstance.matrix = mt.Matrix;
             }
 
             graphCanvas.Children.Clear();
@@ -790,6 +779,7 @@ namespace PlayMakerFSMViewer
         {
             am = new AssetsManager();
             am.updateAfterLoad = false;
+            am.useTemplateFieldCache = true;
             am.LoadClassDatabase(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cldb.dat"));
         }
     }

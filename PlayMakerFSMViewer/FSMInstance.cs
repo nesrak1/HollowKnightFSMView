@@ -10,7 +10,6 @@ namespace PlayMakerFSMViewer
 {
     public class FSMInstance
     {
-        public bool initialized;
         public Matrix matrix;
         public List<UIElement> states;
         public List<UIElement> events;
