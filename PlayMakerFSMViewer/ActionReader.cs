@@ -26,8 +26,7 @@ namespace PlayMakerFSMViewer
                 int paramDataPos = actionData.Get("paramDataPos").Get(i).GetValue().AsInt();
                 int paramByteDataSize = actionData.Get("paramByteDataSize").Get(i).GetValue().AsInt();
                 reader.BaseStream.Position = paramDataPos;
-                string displayValue = "? " + type;
-                displayValue = GetDisplayValue(actionData, inst, version, type, paramDataPos, paramByteDataSize, reader);
+                string displayValue = GetDisplayValue(actionData, inst, version, type, paramDataPos, paramByteDataSize, reader);
                 actionValues[i] = displayValue;
             }
             reader.Close();
@@ -38,7 +37,7 @@ namespace PlayMakerFSMViewer
         public static string GetDisplayValue(AssetTypeValueField actionData, AssetsFileInstance inst, int version,
             ParamDataType type, int paramDataPos, int paramByteDataSize, BinaryReader reader)
         {
-            string displayValue = "? " + type;
+            string displayValue = "[?] " + type;
             if (version == 1 && !(type == ParamDataType.FsmString && paramByteDataSize == 0)) //read binary as normal
             {
                 switch (type)
@@ -71,7 +70,7 @@ namespace PlayMakerFSMViewer
                     case ParamDataType.FsmString:
                     case ParamDataType.FsmEvent:
                     {
-                        displayValue = Encoding.ASCII.GetString(reader.ReadBytes(paramByteDataSize));
+                        displayValue = Encoding.UTF8.GetString(reader.ReadBytes(paramByteDataSize));
                         break;
                     }
                     case ParamDataType.Vector2:
@@ -100,7 +99,7 @@ namespace PlayMakerFSMViewer
                         byte hasName = reader.ReadByte();
                         if (hasName == 0x01)
                         {
-                            string varName = Encoding.ASCII.GetString(reader.ReadBytes(length - 1));
+                            string varName = Encoding.UTF8.GetString(reader.ReadBytes(length - 1));
                             if (varName != "")
                             {
                                 displayValue = varName;
@@ -136,7 +135,7 @@ namespace PlayMakerFSMViewer
                     }
                     case ParamDataType.String:
                     {
-                        displayValue = Encoding.ASCII.GetString(reader.ReadBytes(paramByteDataSize));
+                        displayValue = Encoding.UTF8.GetString(reader.ReadBytes(paramByteDataSize));
                         break;
                     }
                     case ParamDataType.Vector2:
@@ -212,6 +211,17 @@ namespace PlayMakerFSMViewer
                         displayValue = x + ", " + y + ", " + z;
                         break;
                     }
+                    case ParamDataType.FsmQuaternion:
+                    {
+                        field = actionData.Get("fsmVector3Params").Get(paramDataPos);
+                        AssetTypeValueField value = field.Get("value");
+                        string x = value.Get("x").GetValue().AsFloat().ToString();
+                        string y = value.Get("y").GetValue().AsFloat().ToString();
+                        string z = value.Get("z").GetValue().AsFloat().ToString();
+                        string w = value.Get("w").GetValue().AsFloat().ToString();
+                        displayValue = x + ", " + y + ", " + z + ", " + w;
+                        break;
+                    }
                     default:
                     {
                         displayValue = "unknown type " + type.ToString();
@@ -270,25 +280,109 @@ namespace PlayMakerFSMViewer
                     AssetTypeValueField fsmObjectParam = actionData.Get("fsmObjectParams").Get(paramDataPos);
                     string name = fsmObjectParam.Get("name").GetValue().AsString();
                     string typeName = fsmObjectParam.Get("typeName").GetValue().AsString();
+
                     if (typeName.Contains("."))
                         typeName = typeName.Substring(typeName.LastIndexOf(".") + 1);
+
                     AssetTypeValueField value = fsmObjectParam.Get("value");
                     int m_FileID = value.Get("m_FileID").GetValue().AsInt();
                     long m_PathID = value.Get("m_PathID").GetValue().AsInt64();
+
+                    displayValue = "";
+
                     if (name == "")
                         name += GetAssetNameFast(m_FileID, m_PathID, inst);
-                    displayValue = name;
+
                     if (typeName != "")
-                    {
-                        if (name == "")
-                            displayValue = typeName;
-                        else
-                            displayValue += ": " + typeName;
-                    }
+                        displayValue += "(" + typeName + ")";
+
+                    if (name != "")
+                        displayValue += " " + name;
+
                     if (m_PathID != 0)
-                    {
                         displayValue += $" [{m_FileID},{m_PathID}]";
+                    else
+                        displayValue += " [null]";
+                    break;
+                }
+                case ParamDataType.FsmVar:
+                {
+                    AssetTypeValueField fsmVarParam = actionData.Get("fsmVarParams").Get(paramDataPos);
+                    bool useVariable = fsmVarParam.Get("useVariable").GetValue().AsBool();
+                    string objectType = fsmVarParam.Get("objectType").GetValue().AsString();
+                    VariableType variableType = (VariableType)fsmVarParam.Get("type").GetValue().AsInt();
+
+                    displayValue = "";
+
+                    if (objectType.Contains("."))
+                        objectType = objectType.Substring(objectType.LastIndexOf('.') + 1);
+
+                    if (objectType != "")
+                        displayValue += "(" + objectType + ")";
+
+                    string variableName = fsmVarParam.Get("variableName").GetValue().AsString();
+                    if (variableName != "")
+                    {
+                        displayValue += " " + variableName;
                     }
+                    if (!useVariable)
+                    {
+                        displayValue += " ";
+                        switch (variableType)
+                        {
+                            case VariableType.Float:
+                                displayValue += fsmVarParam.Get("floatValue").GetValue().AsFloat().ToString();
+                                break;
+                            case VariableType.Int:
+                                displayValue += fsmVarParam.Get("intValue").GetValue().AsInt().ToString();
+                                break;
+                            case VariableType.Bool:
+                                displayValue += fsmVarParam.Get("boolValue").GetValue().AsBool().ToString().ToLower();
+                                break;
+                            case VariableType.String:
+                                displayValue += fsmVarParam.Get("stringValue").GetValue().AsString().ToString();
+                                break;
+                            case VariableType.Color:
+                            case VariableType.Quaternion:
+                            case VariableType.Rect:
+                            case VariableType.Vector2:
+                            case VariableType.Vector3:
+                                AssetTypeValueField vector4Value = fsmVarParam.Get("vector4Value");
+                                displayValue += "[";
+                                displayValue += vector4Value.Get("x").GetValue().AsInt().ToString() + ", ";
+                                displayValue += vector4Value.Get("y").GetValue().AsInt().ToString() + ", ";
+                                displayValue += vector4Value.Get("z").GetValue().AsInt().ToString() + ", ";
+                                displayValue += vector4Value.Get("w").GetValue().AsInt().ToString();
+                                displayValue += "]";
+                                break;
+                            case VariableType.Object:
+                            case VariableType.GameObject:
+                            case VariableType.Material:
+                            case VariableType.Texture:
+                                AssetTypeValueField objectReference = fsmVarParam.Get("objectReference");
+                                int m_FileID = objectReference.Get("m_FileID").GetValue().AsInt();
+                                long m_PathID = objectReference.Get("m_PathID").GetValue().AsInt64();
+                                string name = GetAssetNameFast(m_FileID, m_PathID, inst);
+                                if (name != "")
+                                    name += " ";
+                                displayValue += $"{name}[{m_FileID},{m_PathID}]";
+                                break;
+                            case VariableType.Array:
+                                displayValue += ((VariableType)fsmVarParam.Get("arrayValue").Get("type").GetValue().AsInt()).ToString();
+                                break;
+                        }
+                    }
+                    break;
+                }
+                case ParamDataType.ObjectReference:
+                {
+                    AssetTypeValueField unityObjectParam = actionData.Get("unityObjectParams").Get(paramDataPos);
+                    int m_FileID = unityObjectParam.Get("m_FileID").GetValue().AsInt();
+                    long m_PathID = unityObjectParam.Get("m_PathID").GetValue().AsInt64();
+                    string name = GetAssetNameFast(m_FileID, m_PathID, inst);
+                    if (name != "")
+                        name += " ";
+                    displayValue = $"{name}[{m_FileID},{m_PathID}]";
                     break;
                 }
                 case ParamDataType.FunctionCall:
@@ -435,7 +529,8 @@ namespace PlayMakerFSMViewer
                         NonPPtr:
                         {
                             string name = "";
-                            field?.Get("name").GetValue().AsString();
+                            if (field != null)
+                                name = field.Get("name").GetValue().AsString();
                             displayValue = name != ""
                                 ? $"{functionName}({name}: {displayValue})"
                                 : $"{functionName}({displayValue})";
@@ -531,11 +626,11 @@ namespace PlayMakerFSMViewer
                 reader.Position = inf.absoluteFilePos;
                 return reader.ReadCountStringInt32();
             }
-            if (inf.curFileType == 0x1)
+            if (inf.curFileType == 0x01)
             {
                 reader.Position = inf.absoluteFilePos;
                 int size = reader.ReadInt32();
-                reader.Position += (size * 12);
+                reader.Position += size * 12;
                 reader.Position += 4;
                 return reader.ReadCountStringInt32();
             }

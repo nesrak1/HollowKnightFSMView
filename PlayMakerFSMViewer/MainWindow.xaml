@@ -16,47 +16,49 @@
             <MenuItem x:Name="openLast" Header="Open Last" Click="OpenLast_Click" IsEnabled="False" />
             <MenuItem x:Name="closeTab" Header="Close Tab" Click="CloseTab_Click" IsEnabled="False" />
         </Menu>
-        <Canvas x:Name="graphCanvas" Height="383" Margin="10,26,10,0" VerticalAlignment="Top">
+        <Canvas x:Name="graphCanvas" Margin="0,22,0,0">
             <Canvas.RenderTransform>
                 <MatrixTransform x:Name="mt"/>
             </Canvas.RenderTransform>
         </Canvas>
-        <TabControl x:Name="fsmTabControl" BorderBrush="#00000000" Margin="10,26,10,0" Height="383" VerticalAlignment="Top" Style="{StaticResource StandaloneTabs}" SelectionChanged="fsmTabControl_SelectionChanged">
-            <!--
-            For layout testing
-            <TabItem Header="File 1">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="File 2">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="File 3">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>-->
-        </TabControl>
-        <TabControl Canvas.Left="707" Width="250" Canvas.Top="10" HorizontalAlignment="Right" Margin="0,26,10,10">
-            <TabItem Header="State">
-                <Grid Background="#FFE5E5E5">
-                    <ScrollViewer>
-                        <StackPanel x:Name="stateList"/>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Events">
-                <Grid Background="#FFE5E5E5">
-                    <ScrollViewer>
-                        <StackPanel x:Name="eventList"/>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Variables">
-                <Grid Background="#FFE5E5E5">
-                    <ScrollViewer>
-                        <StackPanel x:Name="variableList"/>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-        </TabControl>
+        <Grid Margin="0,21,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="250" />
+            </Grid.ColumnDefinitions>
+            <TabControl x:Name="fsmTabControl" BorderBrush="#00000000" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                        Style="{StaticResource StandaloneTabs}" SelectionChanged="fsmTabControl_SelectionChanged" Grid.Row="0" Grid.Column="0" />
+            <GridSplitter Grid.Row="0" Grid.Column="1" Margin="2,0,2,0"
+                  Width="2" VerticalAlignment="Stretch" 
+                  HorizontalAlignment="Center" />
+            <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="2">
+                <TabItem Header="State">
+                    <Grid Background="#FFE5E5E5">
+                        <ScrollViewer>
+                            <StackPanel x:Name="stateList"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Events">
+                    <Grid Background="#FFE5E5E5">
+                        <ScrollViewer>
+                            <StackPanel x:Name="eventList"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Variables">
+                    <Grid Background="#FFE5E5E5">
+                        <ScrollViewer>
+                            <StackPanel x:Name="variableList"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
 
     </Grid>
 </Window>

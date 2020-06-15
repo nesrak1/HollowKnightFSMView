@@ -1,10 +1,10 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Win32;
-using Petzold.Media2D;
 using PlayMakerFSMViewer.FieldClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 
 namespace PlayMakerFSMViewer
@@ -176,7 +175,7 @@ namespace PlayMakerFSMViewer
                         BinaryReader reader = file.reader;
 
                         long oldPos = reader.BaseStream.Position;
-                        reader.BaseStream.Position = (long)info.absoluteFilePos;
+                        reader.BaseStream.Position = info.absoluteFilePos;
                         reader.BaseStream.Position += 28;
                         uint length = reader.ReadUInt32();
                         reader.ReadBytes((int)length);
@@ -187,7 +186,7 @@ namespace PlayMakerFSMViewer
                         reader.BaseStream.Position += 16;
 
                         uint length2 = reader.ReadUInt32();
-                        string fsmName = Encoding.ASCII.GetString(reader.ReadBytes((int)length2));
+                        string fsmName = Encoding.UTF8.GetString(reader.ReadBytes((int)length2));
                         reader.BaseStream.Position = oldPos;
 
                         assetInfos.Add(new AssetInfo()
@@ -212,7 +211,6 @@ namespace PlayMakerFSMViewer
             string tabName = assetInfos.FirstOrDefault(i => i.id == selector.selectedID).name;
             TabItem tab = new TabItem
             {
-                //Name = tabName.Replace(" ","").Replace("-","_").Replace("(","_").Replace(")","_"),
                 Header = tabName
             };
             ignoreChangeEvent = true;
@@ -270,7 +268,7 @@ namespace PlayMakerFSMViewer
 
                 if (toNode == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("transition " + dotNetTransition.fsmEvent.name + " going to non-existant node " + dotNetTransition.toState);
+                    Debug.WriteLine("transition " + dotNetTransition.fsmEvent.name + " going to non-existant node " + dotNetTransition.toState);
                 }
                 else
                 {
@@ -366,7 +364,7 @@ namespace PlayMakerFSMViewer
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine(node.name + " failed to connect to " + trans.toState);
+                        Debug.WriteLine(node.name + " failed to connect to " + trans.toState);
                     }
                     yPos += 16;
                 }
@@ -449,10 +447,10 @@ namespace PlayMakerFSMViewer
             {
                 string name = colorVariables.Get(i).Get("name").GetValue().AsString();
                 AssetTypeValueField color = colorVariables.Get(i).Get("value");
-                string value =  ((int)(color.Get("r").GetValue().AsFloat()) * 255).ToString("X2");
-                        value += ((int)(color.Get("g").GetValue().AsFloat()) * 255).ToString("X2");
-                        value += ((int)(color.Get("b").GetValue().AsFloat()) * 255).ToString("X2");
-                        value += ((int)(color.Get("a").GetValue().AsFloat()) * 255).ToString("X2");
+                string value =  ((int)color.Get("r").GetValue().AsFloat() * 255).ToString("X2");
+                        value += ((int)color.Get("g").GetValue().AsFloat() * 255).ToString("X2");
+                        value += ((int)color.Get("b").GetValue().AsFloat() * 255).ToString("X2");
+                        value += ((int)color.Get("a").GetValue().AsFloat() * 255).ToString("X2");
                 Grid sidebarRow = CreateSidebarRow(name, value);
                 TextBox textBox = sidebarRow.Children.OfType<TextBox>().FirstOrDefault();
                 textBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#" + value));
@@ -559,7 +557,7 @@ namespace PlayMakerFSMViewer
                 int endParam;
                 if (i == actionCount - 1)
                 {
-                    endParam = (int)actionData.Get("paramDataType").GetValue().AsArray().size;
+                    endParam = actionData.Get("paramDataType").GetValue().AsArray().size;
                 }
                 else
                 {
@@ -730,7 +728,7 @@ namespace PlayMakerFSMViewer
             {
                 int oldTab = currentTab;
                 if (currentTab > 0)
-                    currentTab = currentTab - 1;
+                    currentTab--;
                 tabs.RemoveAt(oldTab);
                 LoadSavedNodes(currentTab);
                 fsmTabControl.Items.Remove(fsmTabControl.SelectedItem);

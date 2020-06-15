@@ -7,3 +7,5 @@ Want to view FSMs in another game? Export a cldb [here](https://github.com/nesra
 ![Screenshot](https://user-images.githubusercontent.com/12544505/84093371-a62c7300-a9bf-11ea-8b8f-a43ab175fe50.png)
 
 Download [here](https://github.com/nesrak1/HollowKnightFSMView/releases/).
+
+I probably won't be working on this project anymore, other than fixing crashes.
