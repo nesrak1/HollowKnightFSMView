@@ -746,11 +746,20 @@ namespace PlayMakerFSMViewer
 
         private string GetGamePath()
         {
-            string gamePath = SteamHelper.FindHollowKnightPath();
-            
+            string gamePath = "";
+            using (var fbd = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                System.Windows.Forms.DialogResult result = fbd.ShowDialog();
+
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    gamePath = fbd.SelectedPath;
+                }
+            }
+
             if (gamePath == "" || !Directory.Exists(gamePath))
             {
-                MessageBox.Show("Could not find Steam path. If you've moved your Steam directory this could be why. Contact nes.");
+                MessageBox.Show("Could not find game path. If you've moved your game directory this could be why.");
                 return null;
             }
 
