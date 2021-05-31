@@ -756,6 +756,10 @@ namespace PlayMakerFSMViewer
                     gamePath = fbd.SelectedPath;
                 }
             }
+            if (gamePath == "")
+            {
+                gamePath = SteamHelper.FindHollowKnightPath();
+            }
 
             if (gamePath == "" || !Directory.Exists(gamePath))
             {
