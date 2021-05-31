@@ -746,19 +746,18 @@ namespace PlayMakerFSMViewer
 
         private string GetGamePath()
         {
-            string gamePath = "";
-            using (var fbd = new System.Windows.Forms.FolderBrowserDialog())
-            {
-                System.Windows.Forms.DialogResult result = fbd.ShowDialog();
-
-                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    gamePath = fbd.SelectedPath;
-                }
-            }
+            string gamePath = SteamHelper.FindHollowKnightPath();
             if (gamePath == "")
             {
-                gamePath = SteamHelper.FindHollowKnightPath();
+                using (var fbd = new System.Windows.Forms.FolderBrowserDialog())
+                {
+                    System.Windows.Forms.DialogResult result = fbd.ShowDialog();
+
+                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    {
+                        gamePath = fbd.SelectedPath;
+                    }
+                }
             }
 
             if (gamePath == "" || !Directory.Exists(gamePath))

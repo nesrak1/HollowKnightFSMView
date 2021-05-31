@@ -24,7 +24,7 @@ namespace PlayMakerFSMViewer
         {
             if (ReadRegistrySafe("Software\\Valve\\Steam", "SteamPath") == null)
             {
-                MessageBox.Show("You either don't have steam installed or your registry variable isn't set.");
+                //MessageBox.Show("You either don't have steam installed or your registry variable isn't set.");
                 return "";
             }
 
