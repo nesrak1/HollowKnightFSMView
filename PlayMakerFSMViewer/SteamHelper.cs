@@ -22,21 +22,27 @@ namespace PlayMakerFSMViewer
 
         public static string FindSteamGamePath(int appid, string gameName)
         {
+            string path = "";
+            bool noRegistry = false;
             if (ReadRegistrySafe("Software\\Valve\\Steam", "SteamPath") == null)
             {
-                MessageBox.Show("You either don't have steam installed or your registry variable isn't set.");
-                return "";
+                //MessageBox.Show("You either don't have steam installed or your registry variable isn't set.");
+                noRegistry = true;
             }
 
-            string appsPath = Path.Combine((string)ReadRegistrySafe("Software\\Valve\\Steam", "SteamPath"), "steamapps");
-
-            if (File.Exists(Path.Combine(appsPath, $"appmanifest_{appid}.acf")))
+            if (!noRegistry)
             {
-                return Path.Combine(Path.Combine(appsPath, "common"), gameName);
+                string appsPath = Path.Combine((string)ReadRegistrySafe("Software\\Valve\\Steam", "SteamPath"), "steamapps");
+
+                if (File.Exists(Path.Combine(appsPath, $"appmanifest_{appid}.acf")))
+                {
+                    return Path.Combine(Path.Combine(appsPath, "common"), gameName);
+                }
+
+                path = SearchAllInstallations(Path.Combine(appsPath, "libraryfolders.vdf"), appid, gameName);
             }
 
-            string path = SearchAllInstallations(Path.Combine(appsPath, "libraryfolders.vdf"), appid, gameName);
-            if (path == null)
+            if (path == "")
             {
                 MessageBox.Show("Couldn't find installation automatically. Please pick the location manually.");
                 OpenFileDialog ofd = new OpenFileDialog();
@@ -61,7 +67,7 @@ namespace PlayMakerFSMViewer
         {
             if (!File.Exists(libraryfolders))
             {
-                return null;
+                return "";
             }
             StreamReader file = new StreamReader(libraryfolders);
             string line;
@@ -81,7 +87,7 @@ namespace PlayMakerFSMViewer
                 }
             }
 
-            return null;
+            return "";
         }
 
         private static object ReadRegistrySafe(string path, string key)
